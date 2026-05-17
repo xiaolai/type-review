@@ -36,7 +36,8 @@ export function Features(props: FeaturesProps): JSX.Element {
           </li>
           <li>
             <b>Live on-screen keyboard heatmap</b> — colour codes mastery (locked / new / slow / mid
-            / mastered) and highlights the letter the adaptive engine is currently drilling.
+            / mastered) and highlights the letter the adaptive engine has flagged as currently
+            weakest.
           </li>
         </ul>
 

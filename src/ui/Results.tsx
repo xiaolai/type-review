@@ -183,7 +183,7 @@ function ShareButton(props: { result: RunResult; entry: CorpusEntry | null }): J
   );
 }
 
-/** The weakest included keys, slowest first — what the next lessons will drill. */
+/** The weakest included keys, slowest first — keys still below the target threshold. */
 function weakKeys(plan: LessonPlan): LessonKey[] {
   return plan.keys
     .filter((key) => key.included && key.confidence !== null && key.confidence < 1)
@@ -271,7 +271,7 @@ export function Results(props: {
             fallback={<p class="results__note">every active key is at target — nice.</p>}
           >
             <div class="weak-keys">
-              <span class="weak-keys__label">drilling next</span>
+              <span class="weak-keys__label">still weak</span>
               <For each={weakKeys(plan())}>
                 {(key) => (
                   <span

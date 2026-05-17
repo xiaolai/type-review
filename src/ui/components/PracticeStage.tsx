@@ -136,7 +136,7 @@ export function PracticeStage(props: PracticeStageProps): JSX.Element {
       <Show when={props.snap.plan?.focus}>
         {(focus) => (
           <p class="focus-hint">
-            drilling <b>{focus()}</b>
+            weakest: <b>{focus()}</b>
           </p>
         )}
       </Show>

@@ -120,8 +120,13 @@ export function UserGuide(props: UserGuideProps): JSX.Element {
           </li>
         </ul>
         <p>
-          The single weakest active letter is marked with a subtle accent fill — that's the one the
-          adaptive engine is currently drilling.
+          The single weakest active letter is marked with a subtle accent fill — that's the
+          letter the adaptive engine has flagged as currently weakest. The label below the
+          keyboard echoes it as <code>weakest: x</code>. It's a status indicator, not a content
+          filter — the passage you read isn't biased toward that letter. (In <b>auto</b> mode the
+          alphabet is restricted to letters you've unlocked; in <b>quotes</b>, <b>codes</b>, <b>mine</b>
+          and the other explicit sources the alphabet filter is dropped and you read whatever the
+          source serves.)
         </p>
 
         <h3>Keystroke sounds</h3>
