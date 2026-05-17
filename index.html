@@ -18,39 +18,39 @@
     <!-- Pre-fetch the default typewriter sound sprite. The Web Audio
          path can't decode it without a user gesture, but we can have
          the bytes in cache so decode-on-first-keystroke is instant
-         instead of waiting on a 600 KB download. -->
+         instead of waiting on a 600 KB download.
+         `rel="prefetch"` (not `preload`) on purpose: preload demands the
+         resource be consumed within a few seconds or Chrome logs a
+         "preloaded but not used" warning. The file is intentionally
+         dormant until the first keystroke, which may be many seconds
+         away. Prefetch warms the HTTP cache without that requirement. -->
     <link
-      rel="preload"
-      as="fetch"
+      rel="prefetch"
       href="/sounds/typewriter.ogg"
-      type="audio/ogg"
       crossorigin="anonymous"
     />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <!-- Geist + Geist Mono are self-hosted under /fonts/ (see src/ui/fonts.css).
+         Preload the two weights used above the fold (400 body, 500 medium)
+         so the first paint already has the real font. -->
     <link
-      href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/geist-sans-latin-400-normal.woff2"
+      crossorigin
+    />
+    <link
+      rel="preload"
+      as="font"
+      type="font/woff2"
+      href="/fonts/geist-mono-latin-500-normal.woff2"
+      crossorigin
     />
 
-    <script>
-      // Apply persisted theme before paint to avoid a flash of the wrong theme.
-      // Strict membership check — any other value falls back to the html
-      // attribute's default (dark).
-      try {
-        const t = localStorage.getItem("type-review:theme");
-        if (t === "light" || t === "dark" || t === "high-contrast") {
-          document.documentElement.setAttribute("data-theme", t);
-        } else if (window.matchMedia) {
-          if (window.matchMedia("(prefers-contrast: more)").matches) {
-            document.documentElement.setAttribute("data-theme", "high-contrast");
-          } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
-            document.documentElement.setAttribute("data-theme", "light");
-          }
-        }
-      } catch (_) {}
-    </script>
+    <!-- Pre-paint theme bootstrap. Kept as an external script (not inline)
+         so the strict CSP `script-src 'self'` holds without a hash. -->
+    <script src="/theme-init.js"></script>
   </head>
   <body>
     <div id="root"></div>

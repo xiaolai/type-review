@@ -1,10 +1,10 @@
 import { render } from "solid-js/web";
 import { App } from "./ui/App";
 import { logFailure } from "./ui/log";
-// Load order matters: tokens first, then app-level styles. The new design-system
-// tokens (oklch, fluid type scale, breakpoints) come from `tokens.css`; the
-// existing `styles.css` continues to drive layout until Stage 2 rewrites it
-// against the new tokens.
+// Load order matters: @font-face first so the browser starts the woff2
+// fetch as early as possible, then tokens (which name the font families),
+// then app-level styles.
+import "./ui/fonts.css";
 import "./ui/tokens.css";
 import "./ui/styles.css";
 

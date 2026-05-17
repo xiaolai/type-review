@@ -1,0 +1,61 @@
+/* Self-hosted Geist + Geist Mono.
+ *
+ * Files live under `public/fonts/` and ship at `/fonts/...` in production.
+ * Latin subset only (matches @fontsource/geist-{sans,mono} latin range —
+ * covers ASCII, Latin-1, smart quotes, em/en dashes, common typographic
+ * punctuation). The site is English-only, so latin-ext is unnecessary.
+ *
+ * Hosting locally — instead of fonts.googleapis.com — keeps the page
+ * usable from networks that block Google (notably mainland China) and
+ * lets the strict CSP (`style-src 'self'; font-src 'self'`) hold.
+ *
+ * font-display: swap — render with the system fallback immediately and
+ * upgrade to Geist once the woff2 lands. Avoids a FOIT on slow links. */
+
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/geist-sans-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/geist-sans-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Geist";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/geist-sans-latin-600-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/geist-mono-latin-400-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("/fonts/geist-mono-latin-500-normal.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("/fonts/geist-mono-latin-600-normal.woff2") format("woff2");
+}
