@@ -1,0 +1,1973 @@
+/* ─────────────────────────────────────────────────────────────
+ * type.review — app styles
+ *
+ * Foundation (tokens, resets, type scale) lives in `tokens.css`.
+ * Reusable form controls (.input, .switch, .check, .alert, .card)
+ * live in `components.css` — import here so any view can use them.
+ * This file contains only the app-specific class rules:
+ *   - layout chrome (.app, .topbar, .subnav)
+ *   - typing surface (.typing-area, .char)
+ *   - heatmap, results, settings shells
+ *   - banner copy styles
+ * ───────────────────────────────────────────────────────────── */
+
+@import "./components.css";
+
+/* ---- base ---------------------------------------------------- */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  line-height: var(--lh-normal);
+  -webkit-font-smoothing: antialiased;
+}
+
+kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.6em;
+  height: 1.6em;
+  padding: 0 0.4em;
+  border: var(--bw-1) solid var(--color-border);
+  border-bottom-width: 2px;
+  border-radius: var(--r-2);
+  background: var(--color-surface);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.78em;
+  line-height: 1;
+}
+
+/* ---- layout ------------------------------------------------- */
+.app {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--space-4) var(--gutter) var(--space-4);
+}
+@media (min-width: 768px) {
+  .app {
+    padding: var(--space-5) var(--gutter-lg) var(--space-4);
+  }
+}
+
+.loading {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--color-dim);
+  font-family: var(--font-mono);
+}
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.logo {
+  font-family: var(--font-mono);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-medium);
+  letter-spacing: -0.02em;
+  color: var(--color-dim);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+}
+.logo b {
+  color: var(--color-accent);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.04em;
+}
+.logo small {
+  font-size: 0.85em;
+}
+/* Brand mark — inherits the accent colour via `currentColor`, nudged
+ * down with `align-self: center` so the rectangular outline sits
+ * optically centred on the cap-height of "TYPE" rather than on the
+ * baseline (where `align-items: baseline` would dump it). */
+.logo__mark {
+  align-self: center;
+  color: var(--color-accent);
+  flex: none;
+}
+
+.live {
+  display: flex;
+  gap: var(--space-5);
+  font-variant-numeric: tabular-nums;
+  font-family: var(--font-mono);
+  color: var(--color-muted);
+  font-size: var(--fs-13);
+}
+.live__stat {
+  color: var(--color-accent);
+}
+.live__mode {
+  text-transform: lowercase;
+}
+
+.stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  /* Anchor content near the top of the stage rather than centering it
+   * — the typing-area reserves a fixed 3-line region, so centering
+   * pushed everything way down the viewport. The top padding scales
+   * with viewport height so the gap from the top nav feels comfortable
+   * on both short laptops and tall monitors (clamped 32–80px). The
+   * bottom padding is small so the in-flow .subnav reads as adjacent
+   * to the stage's last row (e.g. the practice hints) rather than as
+   * a separate chrome bar. */
+  justify-content: flex-start;
+  gap: var(--space-5);
+  padding: clamp(32px, 6vh, 80px) 0 var(--space-3);
+}
+@media (min-width: 768px) {
+  .stage {
+    gap: var(--space-7);
+    padding: clamp(40px, 7vh, 96px) 0 var(--space-4);
+  }
+}
+
+.link {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+.link:hover {
+  color: var(--color-text);
+}
+
+/* ---- banners ------------------------------------------------ */
+.banner {
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  border: var(--bw-1) solid transparent;
+}
+.banner--warn {
+  background: var(--color-accent-faint);
+  border-color: var(--color-accent-dim);
+  color: var(--color-text);
+}
+.banner--error {
+  background: var(--color-error-faint);
+  border-color: var(--color-error);
+  color: var(--color-text);
+}
+.banner kbd {
+  border-color: var(--color-border-strong);
+}
+
+/* ---- typing area -------------------------------------------- */
+.typing-area {
+  font-family: var(--font-mono);
+  font-feature-settings: "ss01", "cv11";
+  /* Typing practice has to match the literal source character-for-
+   * character. JetBrains Mono / Fira Code / Cascadia Code (all in the
+   * fallback chain) ship code ligatures that fuse `=>` → `⇒`, `!=` →
+   * `≠`, `->` → `→` etc. — for a typing surface that's a lie about
+   * what's on screen. Disable all ligatures so each ASCII keystroke
+   * the user has to produce is also exactly the glyph they see. */
+  font-variant-ligatures: none;
+  font-size: var(--fs-22);
+  line-height: var(--lh-loose);
+  letter-spacing: 0;
+  color: var(--color-dim);
+  /* `pre-line` preserves the `\n` characters sanitize emits at
+   * paragraph boundaries (rendered as forced line breaks) while still
+   * collapsing inline whitespace runs the way the rest of the engine
+   * expects. Without this, paragraph breaks would render as a single
+   * space and the visual paragraph structure would disappear. */
+  white-space: pre-line;
+  word-break: break-word;
+  user-select: none;
+  /* Reserve three lines so passages of varying length all occupy the
+   * same vertical region — keeps the on-screen keyboard and the toolbar
+   * below from shifting when the corpus picks a shorter or longer
+   * passage. Three lines ≈ enough headroom for typical practice texts
+   * at the current font size and viewport widths. */
+  min-height: calc(1em * var(--lh-loose) * 3);
+  /* Cap reading width to ~72 characters of the current mono font and
+   * center within .stage. Past ~80 chars/line the eye loses its place
+   * on the return saccade and WPM/accuracy both drop. `ch` ties this
+   * to the actual font's character width, so changing font size
+   * doesn't require re-tuning. The keyboard + practice-hints below
+   * keep their full .stage width — they're not reading content. */
+  max-width: 72ch;
+  margin-inline: auto;
+  width: 100%;
+}
+
+.char {
+  /* No explicit `white-space` — each span contains exactly one
+   * character, so the parent `.typing-area`'s `white-space: pre-line`
+   * is enough: single spaces are preserved (no run to collapse),
+   * `\n` chars render as forced wraps, and crucially the absence of
+   * `white-space: pre` here lets WebKit / Safari insert soft-wrap
+   * opportunities BETWEEN sibling char spans. With `pre` here,
+   * Safari treated the whole inline chain as one unbreakable unit
+   * and the typing passage ran off the right edge of the viewport. */
+  transition: color var(--dur-instant) var(--ease-out);
+  position: relative;
+}
+.char--correct {
+  color: var(--color-text);
+}
+/* Errors carry only color — no underline. The error red is enough on
+ * visible characters; spaces are handled below (no color cue possible). */
+.char--incorrect {
+  color: var(--color-error);
+}
+/* Incorrect space: a faint red background is the only way to indicate
+ * an error on an invisible character. */
+.char--space.char--incorrect {
+  background: var(--color-error-faint);
+  border-radius: var(--r-1);
+}
+
+/* ---- whitespace markers (·, →, ↵) -----------------------------
+ * The space / tab / newline characters are invisible by default —
+ * for a typist who needs to verify they're hitting the right
+ * whitespace, that's a problem. These `::before` pseudo-elements
+ * overlay a faint glyph on every whitespace position. Space and tab
+ * use absolute positioning so the marker doesn't push the layout;
+ * newline prepends inline because the line break absorbs any width
+ * impact and the symbol must appear AT the end-of-line, before the
+ * break.
+ *
+ * The CSS sibling selector at the bottom hides the marker on the
+ * second consecutive newline so a `\n\n` paragraph break shows ONE
+ * `↵` symbol, not two stacked on adjacent lines.
+ *
+ * Visibility is class-gated on the parent .typing-area so the
+ * Appearance toggle in Settings can suppress every marker with a
+ * single CSS rule. */
+.char--space::before,
+.char--tab::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  color: var(--color-faint);
+  /* Quieter than the glyphs they overlay so they read as a hint, not a
+   * second character. Code passages have a space between nearly every
+   * token; at full faint colour the row of markers competed visually
+   * with the code itself. */
+  opacity: 0.55;
+}
+/* Tab — arrow glyph centred in the cell. Tabs are rare enough that
+ * the centre placement reads as "this is a tab" without crowding. */
+.char--tab::before {
+  content: "→";
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: calc(1em * var(--ws-marker-scale));
+}
+/* Space — U+2423 OPEN BOX, the formal Unicode "symbol for space".
+ * Anchored at the BASELINE (its natural reading position) so the
+ * arc sits below the glyph row instead of bleeding into the
+ * cap-height area where it would brush the adjacent characters. The
+ * 0.7em font-size keeps the arc narrower than a full character cell
+ * so it never overlaps left/right neighbours either. Especially
+ * important for code where every token boundary is a space. */
+.char--space::before {
+  content: "␣";
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  font-size: 0.7em;
+  line-height: 1;
+}
+.char--newline::before {
+  content: "↵";
+  color: var(--color-faint);
+  font-size: calc(1em * var(--ws-marker-scale));
+  opacity: 0.6;
+}
+/* Paragraph break (`\n\n`) — show only one ↵, not two. */
+.char--newline + .char--newline::before { content: none; }
+
+/* Marker brightens under the cursor and on errors — overrides the
+ * low-opacity default since these states want a clear cue. */
+.char--space.char--current::before,
+.char--tab.char--current::before {
+  color: var(--color-muted);
+  opacity: 1;
+}
+.char--space.char--incorrect::before,
+.char--tab.char--incorrect::before {
+  color: var(--color-error);
+  opacity: 1;
+}
+
+/* User opt-out: kill every marker. The toggle lives in Settings →
+ * Appearance and adds/removes this class on .typing-area. */
+.typing-area--no-ws .char::before { content: none; }
+/* Current (the next character to type) — a vertical accent bar at the
+ * left edge of the char, sized to roughly cap-height-to-baseline so it
+ * reads as a conventional text-input caret rather than a full line-box
+ * stripe. Composes cleanly with `.char--incorrect` when the user is
+ * parked on a wrong character in stop-on-error mode: red glyph + accent
+ * caret reads as "this is wrong, retry here". The blink fully toggles
+ * the caret on/off (opacity 1 → 0); a partial-opacity off-state would
+ * leave a static ghost stripe between blinks that reads as a second,
+ * stranded caret. */
+.char--current::after {
+  content: "";
+  position: absolute;
+  left: -1px;
+  /* Bar height tracks the glyph, not the (loose) line box — top/bottom
+   * are tuned for a 1.75 line-height; if --lh-loose changes, retune. */
+  top: 0.15em;
+  bottom: 0.15em;
+  width: 2px;
+  background: var(--color-accent);
+  pointer-events: none;
+  animation: caret-blink 1.1s steps(1, end) infinite;
+}
+@keyframes caret-blink {
+  0%, 55%   { opacity: 1; }
+  56%, 100% { opacity: 0; }
+}
+
+
+
+/* ---- on-screen keyboard (full ANSI) ------------------------ */
+/* Ported from the design drop. One CSS variable --u sets the whole
+ * keyboard's scale; each key picks its width via --w. Subsumes the old
+ * per-letter heatmap — letter caps get a heat tint as an inline
+ * background, plus a live pressed-state overlay from window key events.
+ *
+ * Default styling targets the Mac variant: chiclet caps with a
+ * prominent corner radius and a slim bottom border (low-profile look).
+ * Windows-specific overrides at the bottom of this section sharpen the
+ * corners and thicken the bottom edge to evoke OEM-style sculpted caps. */
+/* Scale-to-fit wrapper. The keyboard inside has a FIXED pixel width
+ * (set on .kb below); this wrapper takes the full available width and
+ * carries the screen footprint. JS in OnScreenKeyboard.tsx sets the
+ * wrapper's height to match the visually-scaled keyboard's height so
+ * surrounding content stacks tightly.
+ *
+ * NO `overflow: hidden` — the keyboard's rounded corners + box-shadow
+ * extend a few px past the scaled bounds, and clipping them at the
+ * wrapper's bottom edge left visible shadow stubs in the bottom-left
+ * and bottom-right corners (the box-shadow's curved arc, cut flat by
+ * the clip). With overflow visible the shadow renders naturally; the
+ * unscaled-but-empty layout extension below the visual keyboard is
+ * transparent, so nothing visible overflows. */
+.kb-scale {
+  width: 100%;
+  /* `position: relative` so the absolutely-positioned keyboard inside
+   * anchors to the wrapper's content box rather than escaping to the
+   * nearest ancestor with positioning. */
+  position: relative;
+}
+.kb {
+  /* FIXED unit size — does not respond to viewport. The keyboard's
+   * apparent size is varied only by `transform: scale` (set via the
+   * `--kb-scale` CSS variable by the JS in OnScreenKeyboard.tsx). */
+  --u: 22px;
+  --kb-gap: max(3px, calc(var(--u) * 0.1));
+  display: flex;
+  flex-direction: column;
+  gap: var(--kb-gap);
+  padding: calc(var(--u) * 0.35);
+  background: var(--color-surface);
+  border: var(--bw-1) solid var(--color-border);
+  border-radius: calc(var(--u) * 0.35);
+  /* Hard-coded pixel width matching NATURAL_WIDTH in
+   * OnScreenKeyboard.tsx — 15u + 13×3px gap + 2×0.35u padding + 2px
+   * border at --u=22, rounded up by ~1.6px of headroom. (With
+   * box-sizing: border-box the padding/border eat from the declared
+   * width — 385px wasn't enough and the widest row clipped a sliver
+   * of the last key.) This bypasses every browser's intrinsic-sizing
+   * path; the keyboard always renders at a known, predictable size
+   * that the JS transform scales reliably across Chromium/WebKit/
+   * Gecko. */
+  width: 388px;
+  box-shadow: var(--shadow-md);
+  /* Absolutely positioned inside the wrapper so the visually-scaled
+   * keyboard sits in the wrapper's top-center while the unscaled
+   * 385px bounding box doesn't push following content rightward via
+   * its layout width. `transform-origin: top center` keeps the
+   * scaled visual aligned with the wrapper's centre line. */
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%) scale(var(--kb-scale, 1));
+  transform-origin: top center;
+}
+.kb__row {
+  display: flex;
+  gap: var(--kb-gap);
+  height: var(--u);
+}
+.kb__key {
+  flex: 0 0 calc(var(--w, 1) * var(--u) + (var(--w, 1) - 1) * var(--kb-gap));
+  /* Without min-width:0 the spelled-out modifier names can push the cell
+   * past its flex-basis. Hard cap and clip. */
+  min-width: 0;
+  max-width: calc(var(--w, 1) * var(--u) + (var(--w, 1) - 1) * var(--kb-gap));
+  overflow: hidden;
+  height: 100%;
+  padding: 0 calc(var(--u) * 0.12);
+  background: var(--color-bg);
+  border: var(--bw-1) solid var(--color-border);
+  border-bottom-width: 2px;
+  border-radius: calc(var(--u) * 0.15);
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: calc(var(--u) * 0.34);
+  line-height: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: calc(var(--u) * 0.04);
+  user-select: none;
+  transition:
+    background var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    transform var(--dur-fast) var(--ease-out);
+}
+.kb__key--mod {
+  font-size: calc(var(--u) * 0.30);
+  color: var(--color-muted);
+}
+/* Mac modifier caps hug the outer edge of the cluster — left-side keys
+ * (control / option / command on the left of space) align-start; right-side
+ * keys (command / option on the right of space) align-end. Mirrors real
+ * Apple caps. Centered is the default for everything else. */
+.kb__key--align-start {
+  align-items: flex-start;
+}
+.kb__key--align-end {
+  align-items: flex-end;
+}
+/* ---- Windows variant: sharper, taller-looking caps ---------------
+ * Apple's chiclet caps are square with a prominent corner radius and a
+ * very slim profile. Typical Windows OEM mechanical / membrane caps are
+ * near-square (small radius) and taller with a more pronounced bottom
+ * edge that suggests a sculpted top. Mirroring those two cues here is
+ * enough to differentiate the layouts at a glance without leaning on
+ * gradients (which would fight the heat-tint inline background). */
+.kb--windows {
+  /* Frame radius scales down with the cap radius — keeps the case
+   * proportionally less rounded than the Mac variant. */
+  border-radius: calc(var(--u) * 0.18);
+}
+.kb--windows .kb__key {
+  border-radius: calc(var(--u) * 0.05);
+  /* Slightly thicker bottom edge → reads as a taller cap with depth. */
+  border-bottom-width: 3px;
+}
+/* Touch ID — outlined circle at ~66% of the cap diameter, dimmed so it
+ * reads as a soft hardware accent rather than a primary cap label. SVG
+ * sizing guarantees geometric centering, unlike a unicode circle glyph
+ * whose baseline placement varies by font. */
+.kb__key__icon--touch-id {
+  width: calc(var(--u) * 0.666);
+  height: calc(var(--u) * 0.666);
+  opacity: 0.55;
+}
+.kb__key--space {
+  background: var(--color-bg);
+}
+/* Slow (low confidence) — a faint heat glow stays. */
+.kb__key--slow {
+  color: var(--color-text);
+  box-shadow: var(--heat-glow);
+}
+/* Focused (drilling target) — subtle accent fill INSIDE the keycap via a
+ * full-box inset shadow. Layered on top of any inline heat-tint background
+ * so the heat is still readable underneath. Intentionally not a border /
+ * outline / colored ring. */
+.kb__key--focused {
+  box-shadow: inset 0 0 0 9999px var(--color-accent-faint);
+}
+/* Pressed (held right now) — stronger subtle tint. Wins over --slow and
+ * --focused because it's listed last in this file. No colored border, no
+ * accent ring; the translateY conveys the tactile press. */
+.kb__key--pressed {
+  background: color-mix(in oklch, var(--color-accent) 22%, var(--color-bg));
+  box-shadow: none;
+  transform: translateY(1px);
+}
+.kb__key__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.kb__key__sub {
+  /* Sans for the spelled-out modifier labels — matches real Apple caps and
+   * is narrow enough that "control" / "option" / "command" fit in a 1u cap.
+   * Mono here would push "control" past the cap width and trigger the
+   * text-overflow ellipsis. */
+  font-family: var(--font-sans);
+  font-size: calc(var(--u) * 0.18);
+  opacity: 0.55;
+  letter-spacing: 0;
+  margin-top: -1px;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Shifted-character line on dual-character caps — `!` above `1`, `<`
+ * above `,`, etc. Sits above the main label and is dimmer / slightly
+ * smaller so the primary (unshifted) glyph still leads visually. */
+.kb__key__shifted {
+  font-family: var(--font-mono);
+  font-size: calc(var(--u) * 0.26);
+  color: var(--color-muted);
+  opacity: 0.75;
+  line-height: 1;
+}
+/* Dual caps stack two lines (shifted glyph above, unshifted below). The
+ * cap height is fixed at 1u, so center the stack vertically with a small
+ * gap and let the two glyphs split the space. Horizontal alignment falls
+ * through to the cap's default (`align-items: center`), which is what
+ * both Mac and Windows want on dual-character keys. */
+.kb__key--dual {
+  justify-content: center;
+  gap: calc(var(--u) * 0.05);
+}
+
+/* Time-mode countdown — large mono number, accent color, sits between
+ * the typing area and the practice hints. Auto-hidden in word mode by
+ * the <Show> gate on `snap.remainingSec`. */
+.countdown {
+  margin: 0 auto;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  font-family: var(--font-mono);
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+.countdown__value {
+  font-size: var(--fs-32);
+  font-weight: var(--fw-medium);
+  line-height: 1;
+}
+.countdown__unit {
+  font-size: var(--fs-14);
+  color: var(--color-muted);
+}
+
+.practice-hints {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+.practice-hints__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  column-gap: var(--space-5);
+  row-gap: var(--space-1);
+}
+.hint-button {
+  background: none;
+  border: none;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  padding: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.hint-button:hover {
+  color: var(--color-text);
+}
+
+/* ---- custom-text inline affordance --------------------------- */
+/* Lives inside `.practice-hints__row` (a wrapping flex row alongside
+ * the Tab hint and the show/hide-keyboard button). When the panel
+ * opens we want it as its OWN full-width line below those siblings,
+ * not squeezed into a flex column that gives it ~one-third of the row
+ * width. `flex-basis: 100%` forces a wrap so the panel takes the next
+ * line; the row's `flex-wrap: wrap` does the rest. Auto-margin centres
+ * it within its max-width. */
+.custom-text {
+  flex-basis: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  max-width: 36rem;
+  margin-inline: auto;
+}
+/* Compound selector beats the later `.field__input { width: 8rem }`
+ * rule that the textarea inherits via its shared class. Without this
+ * the textarea collapsed to ~128px and wrapped the placeholder after
+ * a couple of characters. */
+.custom-text .custom-text__input {
+  width: 100%;
+  min-height: 5em;
+  font-family: var(--font-mono);
+  resize: vertical;
+}
+.custom-text__actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+/* ---- generic page (about, help) ---------------------------- */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  padding: var(--space-6) var(--space-4) var(--space-12);
+  margin: 0 auto;
+  width: 100%;
+}
+.page--narrow {
+  max-width: 44rem;
+}
+.page__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.page__title {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-32);
+  letter-spacing: var(--tracking-snug);
+  line-height: var(--lh-tight);
+  margin: 0;
+  text-wrap: balance;
+}
+.page__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font-family: var(--font-sans);
+  color: var(--color-muted);
+  line-height: var(--lh-normal);
+}
+.page__body h3 {
+  font-family: var(--font-sans);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+  margin: var(--space-3) 0 0;
+}
+.page__body p {
+  margin: 0;
+  color: var(--color-muted);
+}
+.page__body ul {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.page__body code {
+  font-family: var(--font-mono);
+  font-size: 0.92em;
+  background: var(--color-surface);
+  padding: 0 0.3em;
+  border-radius: var(--r-2);
+}
+.page__body a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---- library screen --------------------------------------- */
+.library {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 48rem;
+  width: 100%;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-12);
+}
+.library__head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.library__add,
+.library__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+/* Library's title input and textarea reuse .field__input, which is sized
+ * to 8rem for narrow Settings controls. Library is a prose-entry surface,
+ * so widen every .field__input inside it. Compound selector beats the
+ * later `.field__input { width: 8rem }` rule on specificity. */
+.library .field__input {
+  width: 100%;
+}
+.library__textarea {
+  font-family: var(--font-mono);
+  min-height: 12rem;
+  resize: vertical;
+  line-height: var(--lh-normal);
+}
+/* File picker — the native <input type="file"> button is hard to style and
+ * mixes browser fonts/spacing into our minimalist surface. Hide the input
+ * (sr-only keeps it accessible + focusable for keyboard / screen-reader
+ * use); render a <label> styled as .btn instead. The picked filename
+ * sits to the right in muted text. */
+.library__file {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.library__file-btn {
+  /* Label as button — inherits .btn. The cursor: pointer is the visual
+   * affordance; the native input it triggers stays sr-only. */
+}
+.library__file-btn--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.library__file-name {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+}
+.library__items {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.library__item {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: var(--bw-1) solid var(--color-border);
+}
+.library__item-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.library__item-title {
+  font-family: var(--font-sans);
+  font-size: var(--fs-14);
+  color: var(--color-text);
+}
+.library__item-meta {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--color-dim);
+}
+.library__item-preview {
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  color: var(--color-muted);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.results__attribution {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--color-muted);
+  margin: 0 0 var(--space-3);
+}
+.results__attribution em {
+  font-style: italic;
+  color: var(--color-text);
+}
+.results__attribution-license {
+  color: var(--color-dim);
+}
+
+/* Achievement banner — sits at the top of the Results card and lists
+ * the milestone(s) the run just unlocked. Quiet by design (not a toast,
+ * no animation jumping in front of the WPM number), but enough accent
+ * tone to read as a small reward. */
+.achievement {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  margin: 0 0 var(--space-4);
+  border: 1px solid var(--color-accent);
+  border-radius: var(--r-3);
+  background: color-mix(in srgb, var(--color-accent) 8%, transparent);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+}
+.achievement__title {
+  color: var(--color-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.achievement__chip {
+  display: inline-block;
+  padding: 0 var(--space-2);
+  border-radius: var(--r-2);
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  color: var(--color-text);
+}
+
+/* ---- inline segmented control (used in the practice hints row) --- */
+/* Tight `column-gap: 4px` between every child (options + `·`
+ * separators) so the segmented control reads as one cohesive cluster
+ * rather than a list of widely-spaced items. The label gets extra
+ * breathing room from its own `margin-right` so the colon doesn't
+ * crowd the first option. */
+.inline-seg {
+  display: inline-flex;
+  align-items: center;
+  column-gap: var(--space-1);
+  row-gap: var(--space-1);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+}
+.inline-seg__label {
+  color: var(--color-dim);
+  text-transform: uppercase;
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  /* +4px on top of the row's column-gap → ~8px after the label's
+   * colon, matching the previous overall spacing only between the
+   * label and the first option (everything else stays tight). */
+  margin-right: var(--space-1);
+}
+.inline-seg__opt {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-muted);
+  font: inherit;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.inline-seg__opt:hover {
+  color: var(--color-text);
+}
+.inline-seg__opt--on {
+  color: var(--color-accent);
+}
+.inline-seg__sep {
+  color: var(--color-faint);
+}
+
+.focus-hint,
+.hint {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  text-align: center;
+}
+.focus-hint b {
+  color: var(--color-accent);
+}
+
+/* ---- results ------------------------------------------------ */
+.results {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-7);
+  align-items: center;
+}
+
+.stat-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-8);
+  justify-content: center;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  font-family: var(--font-mono);
+}
+.stat__value {
+  font-size: var(--fs-32);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-accent);
+  line-height: 1;
+}
+.stat--big .stat__value {
+  font-size: var(--fs-56);
+}
+.stat__label {
+  color: var(--color-muted);
+  font-size: var(--fs-12);
+  text-transform: lowercase;
+  margin-top: var(--space-1);
+  letter-spacing: 0.04em;
+}
+
+.weak-keys {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.weak-keys__label {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  margin-right: var(--space-2);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+.weak-key {
+  width: 1.7rem;
+  height: 1.7rem;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-2);
+  background: var(--heat-1);
+  color: var(--heat-fg);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+}
+.results__note {
+  color: var(--color-ok);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+}
+
+/* ---- settings ----------------------------------------------- */
+.settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: min(28rem, 100%);
+  margin: 0 auto;
+}
+.settings__title {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+  font-size: var(--fs-22);
+  margin: 0;
+}
+/* Tabbed card — tabs live on top of a panel inside one bordered
+ * container, browser-tab style. Each tab is a plain text button; the
+ * active one carries an accent underline that anchors it to the panel
+ * below. */
+.settings-card {
+  border: var(--bw-1) solid var(--color-border);
+  border-radius: var(--r-3);
+  background: var(--color-surface);
+  overflow: hidden;
+}
+.settings-card__tabs {
+  display: flex;
+  padding: 0 var(--space-3);
+  border-bottom: var(--bw-1) solid var(--color-border);
+  overflow-x: auto;
+}
+.settings-card__tab {
+  position: relative;
+  background: transparent;
+  border: none;
+  color: var(--color-muted);
+  padding: var(--space-3) var(--space-4);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-out);
+  white-space: nowrap;
+}
+.settings-card__tab:hover {
+  color: var(--color-text);
+}
+.settings-card__tab--active {
+  color: var(--color-accent);
+}
+.settings-card__tab--active::after {
+  content: "";
+  position: absolute;
+  left: var(--space-3);
+  right: var(--space-3);
+  bottom: -1px;
+  height: 2px;
+  background: var(--color-accent);
+}
+.settings-card__panel {
+  padding: var(--space-5);
+}
+/* Section body — uniform breathing room between fields inside a panel
+ * (and between subsection groups when a tab uses them). Slightly larger
+ * than the in-subsection gap so subsections read as discrete groups. */
+.settings section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+/* Subsection — h3 heading + its grouped fields. Used by tabs with
+ * enough fields to benefit from internal structure (currently only the
+ * Practice tab). */
+/* Rendered as <fieldset> for a11y (aria-labelledby on a generic div
+ * isn't supported; <fieldset> is the canonical labeled control group).
+ * The browser's default fieldset border + padding + min-inline-size
+ * are reset here so the visual stays identical to the previous <div>. */
+.subsection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-inline-size: auto;
+}
+.subsection > h3 {
+  margin: 0;
+}
+/* Tight stack for adjacent like-controls (consecutive checkboxes) — the
+ * default field-to-field gap reads as too sparse for items that act as
+ * a single switch list. */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.field__label {
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  text-transform: lowercase;
+  letter-spacing: 0.04em;
+}
+.field__hint {
+  color: var(--color-dim);
+  font-size: var(--fs-12);
+}
+.field__input {
+  background: var(--color-surface);
+  border: var(--bw-1) solid var(--color-border);
+  border-radius: var(--r-3);
+  color: var(--color-text);
+  padding: var(--space-3) var(--space-4);
+  font: inherit;
+  font-family: var(--font-mono);
+  width: 8rem;
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.field__input:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: var(--ring-focus);
+}
+.field__checkbox {
+  display: flex;
+  /* Align the checkbox with the FIRST line, not the visual centre — the
+   * latter looks fine on single-line labels but floats the checkbox
+   * mid-paragraph when the text wraps to two or more lines. */
+  align-items: flex-start;
+  gap: var(--space-3);
+  color: var(--color-text);
+  font-size: var(--fs-13);
+  font-family: var(--font-mono);
+}
+/* The text content inside a checkbox label must live in a single child
+ * (typically a <span>) — otherwise sibling text nodes and inline
+ * elements like <code> each become separate flex items and the text
+ * fragments into independent columns instead of wrapping naturally. */
+.field__checkbox > span {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.field__range {
+  width: 16rem;
+  max-width: 100%;
+  accent-color: var(--color-accent);
+}
+
+/* ---- buttons ----------------------------------------------- */
+.actions {
+  display: flex;
+  gap: var(--space-3);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 10px var(--space-4);
+  border-radius: var(--r-3);
+  border: var(--bw-1) solid var(--color-border);
+  background: transparent;
+  color: var(--color-text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-out), border-color var(--dur-fast) var(--ease-out), transform var(--dur-fast) var(--ease-out);
+  min-height: 44px;
+  white-space: nowrap;
+}
+.btn:hover {
+  background: var(--color-surface);
+}
+.btn:active {
+  transform: translateY(1px);
+}
+.btn--primary {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-fg);
+}
+.btn--primary:hover {
+  background: color-mix(in oklch, var(--color-accent) 92%, white);
+}
+.btn--primary kbd {
+  /* Darken the kbd onto the accent button using the on-accent text
+   * colour at low opacity — auto-adapts across dark/light/high-contrast
+   * themes (each defines its own --color-accent-fg). */
+  background: color-mix(in oklch, var(--color-accent-fg) 18%, transparent);
+  border: none;
+  color: inherit;
+}
+
+/* ---- profile ----------------------------------------------- */
+.profile-id {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+  flex-wrap: wrap;
+}
+.profile-id__text {
+  flex: 1;
+  min-width: 200px;
+}
+.profile-id__name {
+  font-family: var(--font-sans);
+  font-size: var(--fs-20);
+  letter-spacing: var(--tracking-snug);
+  color: var(--color-text);
+}
+.profile-id__meta {
+  font-size: var(--fs-12);
+  color: var(--color-dim);
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  margin-top: 4px;
+  font-family: var(--font-mono);
+}
+.profile-id__sep {
+  color: var(--color-faint);
+}
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  color: var(--color-muted);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  letter-spacing: 0.06em;
+}
+.profile-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--color-border);
+  border-radius: var(--r-4);
+  overflow: hidden;
+  margin-bottom: var(--space-8);
+}
+@media (min-width: 768px) {
+  .profile-hero {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+.profile-hero__cell {
+  background: var(--color-bg);
+  padding: var(--space-5) var(--space-5) var(--space-6);
+}
+.profile-hero__value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-28);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  margin-top: var(--space-2);
+}
+.profile-hero__value--accent {
+  color: var(--color-accent);
+}
+/* ---- results page extras (in-run graph + replay + share) ---- */
+.run-graph {
+  margin-top: var(--space-5);
+  width: 100%;
+  max-width: 40rem;
+}
+.spark--tall {
+  width: 100%;
+  height: 4rem;
+}
+
+.replay {
+  margin-top: var(--space-5);
+  width: 100%;
+  max-width: 40rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+.replay__text {
+  font-family: var(--font-mono);
+  font-size: var(--fs-14);
+  color: var(--color-muted);
+  background: var(--color-surface);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--r-3);
+  border: var(--bw-1) solid var(--color-border);
+  margin: 0;
+  white-space: pre-wrap;
+  min-height: 5em;
+  width: 100%;
+}
+
+/* ---- share card (rendered at #/share/<payload>) ---- */
+.share-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: var(--space-8) var(--space-5);
+  gap: var(--space-3);
+  background: var(--color-surface);
+  border: var(--bw-1) solid var(--color-border);
+  border-radius: var(--r-4);
+}
+.share-card__brand {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--color-dim);
+  letter-spacing: 0.06em;
+  text-transform: lowercase;
+  margin: 0 0 var(--space-4);
+}
+.share-card__hero {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+.share-card__wpm {
+  font-family: var(--font-mono);
+  font-size: var(--fs-96);
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.share-card__wpm-unit {
+  font-family: var(--font-mono);
+  font-size: var(--fs-24);
+  color: var(--color-muted);
+}
+.share-card__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  color: var(--color-muted);
+}
+.share-card__attribution {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--color-dim);
+  margin: var(--space-4) 0 0;
+}
+
+/* ---- stats grid (heatmap / calendar / hall of fame / etc.) ---- */
+/* Each row is a 2-column grid on wide viewports, single column on
+ * narrow ones. Vertical gap is generous so panels read as discrete. */
+.stats-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-7);
+  margin-bottom: var(--space-8);
+}
+@media (min-width: 768px) {
+  .stats-grid--2col {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: var(--space-8);
+  }
+}
+
+/* ---- keyboard heatmap ---------------------------------------- */
+.heatmap {
+  --hm-key: clamp(36px, 6vw, 48px);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
+  padding: var(--space-3) 0;
+}
+.heatmap__row {
+  display: flex;
+  gap: 4px;
+}
+.heatmap__key {
+  width: var(--hm-key);
+  height: var(--hm-key);
+  border: var(--bw-1) solid var(--color-border);
+  border-radius: var(--r-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--color-text);
+  transition: transform var(--dur-fast) var(--ease-out);
+  position: relative;
+}
+.heatmap__key--empty {
+  color: var(--color-faint);
+}
+.heatmap__key--error {
+  border-color: var(--color-error);
+  border-width: var(--bw-2);
+}
+.heatmap__letter {
+  font-size: var(--fs-13);
+  font-weight: var(--fw-medium);
+}
+.heatmap__ms {
+  font-size: 9px;
+  color: var(--color-muted);
+  letter-spacing: 0.04em;
+}
+.heatmap__legend {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  color: var(--color-dim);
+  flex-wrap: wrap;
+}
+.heatmap__legend-label {
+  text-transform: lowercase;
+}
+.heatmap__legend-bar {
+  width: 80px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: linear-gradient(
+    to right,
+    var(--color-surface-2),
+    var(--color-accent)
+  );
+}
+.heatmap__legend-error {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.heatmap__legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  border: var(--bw-2) solid var(--color-error);
+}
+
+/* ---- practice calendar --------------------------------------- */
+.calendar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.calendar__streaks {
+  display: flex;
+  gap: var(--space-6);
+}
+.calendar__streak {
+  display: flex;
+  flex-direction: column;
+}
+.calendar__streak-value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-24);
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.calendar__streak-label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  color: var(--color-muted);
+  text-transform: lowercase;
+  margin-top: 4px;
+}
+.calendar__grid {
+  display: grid;
+  gap: 3px;
+}
+.calendar__cell {
+  aspect-ratio: 1;
+  border-radius: 3px;
+  min-height: 12px;
+  border: var(--bw-1) solid transparent;
+  transition: transform var(--dur-fast) var(--ease-out);
+}
+.calendar__cell--today {
+  border-color: var(--color-accent);
+}
+.calendar__legend {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: var(--fs-11);
+  color: var(--color-faint);
+}
+.calendar__legend-spacer {
+  flex: 1;
+}
+
+/* ---- WPM-by-source bars -------------------------------------- */
+.channel-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.channel-bars__row {
+  display: grid;
+  grid-template-columns: minmax(70px, auto) 1fr minmax(70px, auto);
+  align-items: center;
+  gap: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+}
+.channel-bars__label {
+  color: var(--color-muted);
+  text-transform: lowercase;
+}
+.channel-bars__track {
+  position: relative;
+  height: 14px;
+  background: var(--color-surface-2);
+  border-radius: var(--r-2);
+  overflow: hidden;
+}
+.channel-bars__fill {
+  height: 100%;
+  background: color-mix(in oklch, var(--color-accent) 60%, var(--color-surface-2));
+}
+.channel-bars__best {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 2px;
+  background: var(--color-accent);
+}
+.channel-bars__value {
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.channel-bars__count {
+  color: var(--color-dim);
+  font-size: var(--fs-11);
+}
+
+/* ---- WPM distribution histogram ------------------------------ */
+.distribution {
+  display: flex;
+  align-items: end;
+  gap: 4px;
+  height: 120px;
+  padding-bottom: 18px;
+  position: relative;
+}
+.distribution__col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  position: relative;
+}
+.distribution__bar {
+  width: 100%;
+  background: color-mix(in oklch, var(--color-accent) 55%, var(--color-surface-2));
+  border-radius: var(--r-1) var(--r-1) 0 0;
+  min-height: 1px;
+}
+.distribution__bar--empty {
+  background: var(--color-surface-2);
+  opacity: 0.5;
+}
+.distribution__label {
+  position: absolute;
+  bottom: -16px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--color-dim);
+}
+
+/* ---- milestone chips ---------------------------------------- */
+.milestones {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.milestone {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  padding: 4px var(--space-3);
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  color: var(--color-faint);
+  border: var(--bw-1) solid var(--color-border);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+}
+.milestone--reached {
+  color: var(--color-accent);
+  border-color: var(--color-accent);
+  background: var(--color-accent-faint);
+}
+
+/* ---- inline bigram pill -------------------------------------- */
+.bigram {
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  background: var(--color-surface-2);
+  border-radius: var(--r-2);
+  padding: 2px 6px;
+  letter-spacing: 0.05em;
+}
+.sessions {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  text-align: left;
+  /* On narrow viewports the columns add up to wider than a small phone
+   * — let the user scroll horizontally rather than crush the cells.
+   * `display: block` + `overflow-x: auto` doesn't affect tablet/desktop
+   * because the table already fits its container. */
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.sessions th,
+.sessions td {
+  padding: var(--space-3) var(--space-4) var(--space-3) 0;
+  border-bottom: var(--bw-1) solid var(--color-border);
+  vertical-align: middle;
+}
+.sessions th:last-child,
+.sessions td:last-child {
+  padding-right: 0;
+  text-align: right;
+}
+.sessions tbody tr:last-child td {
+  border-bottom: none;
+}
+.session-row--head th {
+  font-weight: var(--fw-medium);
+  font-size: var(--fs-10);
+  color: var(--color-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.spark {
+  width: 100%;
+  height: 80px;
+  display: block;
+}
+.spark__line {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.spark__area {
+  fill: var(--color-accent-area);
+}
+.empty-note {
+  color: var(--color-dim);
+  font-family: var(--font-mono);
+  font-size: var(--fs-13);
+  padding: var(--space-6) 0;
+  text-align: center;
+}
+
+/* Visually hidden, screen-reader-only text. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.logo--button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+}
+.logo--button:hover b {
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* Primary nav — minimal text links, no pill, no border. Matches the
+ * .link / .hint-button / .settings-card__tab language elsewhere. The
+ * row flows inline beneath the stage; the meta-link `<Footer>` sits
+ * below it. */
+.subnav {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  column-gap: var(--space-5);
+  row-gap: var(--space-2);
+}
+.subnav__item {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--color-muted);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.subnav__item:hover {
+  color: var(--color-text);
+}
+.subnav__item--active {
+  color: var(--color-accent);
+}
+
+/* Meta-link footer — quieter than .subnav (the primary nav), sits
+ * below it. Two entries: the `about` text link (which hubs to
+ * features, guide, credits) and an inline GitHub mark linking to the
+ * source repo. */
+.footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-2);
+}
+.footer__link {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--color-dim);
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.footer__link:hover {
+  color: var(--color-muted);
+}
+.footer__link--active {
+  color: var(--color-accent);
+}
+/* GitHub mark — same color baseline as `.footer__link`, sized to align
+ * optically with the text x-height of the lowercase mono label. SVG
+ * inherits color via `fill: currentColor`. */
+.footer__icon {
+  display: inline-flex;
+  align-items: center;
+  color: var(--color-dim);
+  text-decoration: none;
+  transition: color var(--dur-fast) var(--ease-out);
+}
+.footer__icon:hover {
+  color: var(--color-muted);
+}
+/* Author link — globe icon + name as a single inline-flex unit so the
+ * icon stays glued to the text. Anchor variant; needs the same
+ * text-decoration / color reset as the other footer links because the
+ * generic `.page__body a` rule paints anchors as accented underlined
+ * links elsewhere (this footer is outside .page__body, so default
+ * browser styling applies — strip both explicitly to match). */
+.footer__link--author {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+}
+.footer__link--author:hover {
+  text-decoration: none;
+}
+
+/* Hub card grid — used on the About page to surface features, guide,
+ * and credits as discoverable entry points. Sized so three cards fit
+ * comfortably side-by-side on desktop and stack on narrow viewports. */
+.hub {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--space-3);
+  margin: 0 0 var(--space-5);
+}
+/* `.page__body a` paints anchors as underlined accent links by default —
+ * hub cards are anchors but want card-style chrome, so we override both
+ * color and text-decoration explicitly (also on the title/sub spans, in
+ * case browsers propagate underline through inline children). */
+.page__body .hub__card,
+.page__body .hub__card:hover {
+  text-decoration: none;
+  color: var(--color-text);
+}
+.hub__card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--r-3);
+  background: var(--color-surface);
+  transition: border-color var(--dur-fast) var(--ease-out),
+              background var(--dur-fast) var(--ease-out);
+}
+.hub__card:hover {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 6%, var(--color-surface));
+}
+.hub__title {
+  font-family: var(--font-sans);
+  font-weight: var(--fw-semibold);
+  color: var(--color-text);
+}
+.hub__sub {
+  color: var(--color-muted);
+  font-size: var(--fs-12);
+}
+
+/* ---- article prose (in-app long-form essays) ---- */
+/* Used by ArticleView for content rendered from
+ * `public/articles/<slug>/article.md`. Mirrors `.page__body` for
+ * vertical-rhythm consistency with About/UserGuide/Credits, but adds
+ * the extras prose needs: figures, blockquotes, an italic subtitle on
+ * the first paragraph, and tight rendering for the references list at
+ * the bottom. */
+.article-prose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  font-family: var(--font-sans);
+  color: var(--color-muted);
+  line-height: var(--lh-normal);
+  font-size: var(--fs-16);
+}
+.article-prose h1,
+.article-prose h2,
+.article-prose h3 {
+  font-family: var(--font-sans);
+  color: var(--color-text);
+  font-weight: var(--fw-semibold);
+  letter-spacing: var(--tracking-snug);
+  line-height: var(--lh-tight);
+  text-wrap: balance;
+  margin: var(--space-5) 0 0;
+}
+/* The article body's H1 is the inline title carried in the markdown
+ * source — duplicate of `.page__title` so we hide it (page chrome
+ * already renders the title from the manifest). */
+.article-prose > h1:first-child { display: none; }
+.article-prose h2 {
+  font-size: var(--fs-22);
+  margin-top: var(--space-6);
+}
+.article-prose h3 {
+  font-size: var(--fs-18);
+  margin-top: var(--space-5);
+}
+.article-prose p {
+  margin: 0;
+}
+.article-prose p > em:only-child {
+  /* Convention: a paragraph that's entirely italic = subtitle / dek. */
+  color: var(--color-dim);
+  font-size: var(--fs-18);
+}
+.article-prose strong { color: var(--color-text); }
+.article-prose a {
+  color: var(--color-accent);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+.article-prose hr {
+  border: 0;
+  border-top: var(--bw-1) solid var(--color-border);
+  margin: var(--space-6) 0;
+}
+/* Figures get generous vertical breathing room inside the narrow
+ * reading column so they read as separate visual beats from the
+ * surrounding paragraphs. */
+.article-prose figure {
+  margin: var(--space-6) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+/* Image rules cover both figure-wrapped images and any rare inline
+ * image (none today, but the renderer can emit them). `max-width:
+ * 100%` keeps phones happy; `height: auto` preserves aspect ratio;
+ * centring handles narrower-than-column figures cleanly. */
+.article-prose img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  margin: 0 auto;
+  border-radius: var(--r-3);
+  background: var(--color-surface-2);
+}
+.article-prose figure img {
+  /* Fill the full reading column. We intentionally don't cap width
+   * here: the alt text is the accessibility surface, the visible
+   * caption is hidden (see below), so the image itself carries the
+   * meaning and gets the room. */
+  width: 100%;
+}
+/* The renderer emits a <figcaption> from each image's alt text. The
+ * alt is what screen readers consume; the visible duplicate adds
+ * noise to the reading flow, so we hide it. Drop `display: none` and
+ * you get captions back without touching the renderer. */
+.article-prose figcaption {
+  display: none;
+}
+
+/* Footnote markers — small superscript link in the body, kept visually
+ * out of the reading flow but clickable. Pair with the reference list
+ * styling below so a clicked footnote scrolls to and briefly highlights
+ * the matching entry. */
+.article-prose sup.footnote {
+  font-size: 0.7em;
+  line-height: 0;
+  vertical-align: super;
+  margin-left: 0.05em;
+}
+.article-prose sup.footnote a {
+  color: var(--color-accent);
+  text-decoration: none;
+  padding: 0 0.15em;
+  border-radius: var(--r-1);
+}
+.article-prose sup.footnote a:hover,
+.article-prose sup.footnote a:focus-visible {
+  background: var(--color-accent-faint);
+}
+/* References at the bottom: number flows inline at the start, the
+ * citation text follows. Simpler than a grid layout — URLs that wrap
+ * past the column break cleanly under the rest of the citation
+ * instead of fighting a forced column gutter. */
+.article-prose p.reference {
+  font-size: var(--fs-14);
+  /* Break long URLs at hyphens / slashes rather than forcing
+   * horizontal scroll on phones. */
+  overflow-wrap: anywhere;
+}
+.article-prose p.reference .reference__num {
+  color: var(--color-accent);
+  font-family: var(--font-mono);
+  margin-right: 0.25em;
+}
+/* Back-link from a reference to the body marker that cited it. Small
+ * and quiet — only the reader who just followed a footnote is
+ * looking for it. Multiple back-links (when the same reference was
+ * cited twice) get tiny numeric subscripts so each one is unambiguous. */
+.article-prose p.reference .reference__back {
+  color: var(--color-dim);
+  text-decoration: none;
+  margin-left: 0.25em;
+  padding: 0 0.2em;
+  border-radius: var(--r-1);
+}
+.article-prose p.reference .reference__back:hover,
+.article-prose p.reference .reference__back:focus-visible {
+  color: var(--color-accent);
+  background: var(--color-accent-faint);
+}
+.article-prose p.reference .reference__back sub {
+  font-size: 0.7em;
+}
+/* Flash a tinted background on the jumped-to target for ~2s; the
+ * JS handler in ArticleView toggles `.reference--target` on click.
+ * Applies to both references (forward jump) and body markers (back). */
+.reference--target {
+  animation: ref-flash 2s var(--ease-out) both;
+  border-radius: var(--r-2);
+}
+@keyframes ref-flash {
+  0%   { background: var(--color-accent-faint); }
+  100% { background: transparent; }
+}

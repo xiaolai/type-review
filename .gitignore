@@ -1,0 +1,7 @@
+node_modules/
+dist/
+coverage/
+reference-repo/
+*.local
+.DS_Store
+.claude/

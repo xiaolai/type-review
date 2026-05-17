@@ -1,0 +1,7 @@
+{
+  "id": "code-pattern-match-rs",
+  "text": "enum Shape {\n    Circle(f64),\n    Rectangle(f64, f64),\n    Triangle { base: f64, height: f64 },\n}\n\nfn area(shape: &Shape) -> f64 {\n    match shape {\n        Shape::Circle(r) => std::f64::consts::PI * r * r,\n        Shape::Rectangle(w, h) => w * h,\n        Shape::Triangle { base, height } => 0.5 * base * height,\n    }\n}",
+  "title": "Pattern matching",
+  "author": "Rust",
+  "license": "public domain"
+}

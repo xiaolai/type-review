@@ -1,0 +1,7 @@
+{
+  "id": "code-binsearch-rs",
+  "text": "fn binary_search(slice: &[i32], target: i32) -> Option<usize> {\n    let (mut lo, mut hi) = (0, slice.len());\n    while lo < hi {\n        let mid = lo + (hi - lo) / 2;\n        match slice[mid].cmp(&target) {\n            Ordering::Less => lo = mid + 1,\n            Ordering::Greater => hi = mid,\n            Ordering::Equal => return Some(mid),\n        }\n    }\n    None\n}",
+  "title": "Binary search",
+  "author": "Rust",
+  "license": "public domain"
+}

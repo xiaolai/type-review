@@ -1,0 +1,7 @@
+{
+  "id": "code-treenode-ts",
+  "text": "interface TreeNode<T> {\n  value: T;\n  left: TreeNode<T> | null;\n  right: TreeNode<T> | null;\n}\n\nfunction insert<T>(node: TreeNode<T> | null, value: T, cmp: (a: T, b: T) => number): TreeNode<T> {\n  if (node === null) return { value, left: null, right: null };\n  if (cmp(value, node.value) < 0) node.left = insert(node.left, value, cmp);\n  else node.right = insert(node.right, value, cmp);\n  return node;\n}",
+  "title": "Binary tree",
+  "author": "TypeScript",
+  "license": "public domain"
+}

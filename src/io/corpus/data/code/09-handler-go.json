@@ -1,0 +1,7 @@
+{
+  "id": "code-handler-go",
+  "text": "func handler(w http.ResponseWriter, r *http.Request) {\n    if r.Method != http.MethodGet {\n        http.Error(w, \"method not allowed\", http.StatusMethodNotAllowed)\n        return\n    }\n    fmt.Fprintln(w, \"hello, world\")\n}",
+  "title": "HTTP handler",
+  "author": "Go",
+  "license": "public domain"
+}

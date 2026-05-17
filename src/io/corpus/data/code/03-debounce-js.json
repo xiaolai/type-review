@@ -1,0 +1,7 @@
+{
+  "id": "code-debounce-js",
+  "text": "function debounce(fn, delay) {\n  let timer = null;\n  return function (...args) {\n    if (timer !== null) clearTimeout(timer);\n    timer = setTimeout(() => fn.apply(this, args), delay);\n  };\n}",
+  "title": "Debounce",
+  "author": "JavaScript",
+  "license": "public domain"
+}

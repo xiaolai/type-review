@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>TYPE — adaptive typing on real prose · type.review</title>
+    <meta
+      name="description"
+      content="TYPE — adaptive typing practice. Drill your weak keys, run benchmarks, no signup."
+    />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="theme-color" content="oklch(0.150 0.012 250)" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icon.svg" />
+    <link rel="mask-icon" href="/favicon.svg" color="#5fd1d8" />
+
+    <!-- Pre-fetch the default typewriter sound sprite. The Web Audio
+         path can't decode it without a user gesture, but we can have
+         the bytes in cache so decode-on-first-keystroke is instant
+         instead of waiting on a 600 KB download. -->
+    <link
+      rel="preload"
+      as="fetch"
+      href="/sounds/typewriter.ogg"
+      type="audio/ogg"
+      crossorigin="anonymous"
+    />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script>
+      // Apply persisted theme before paint to avoid a flash of the wrong theme.
+      // Strict membership check — any other value falls back to the html
+      // attribute's default (dark).
+      try {
+        const t = localStorage.getItem("type-review:theme");
+        if (t === "light" || t === "dark" || t === "high-contrast") {
+          document.documentElement.setAttribute("data-theme", t);
+        } else if (window.matchMedia) {
+          if (window.matchMedia("(prefers-contrast: more)").matches) {
+            document.documentElement.setAttribute("data-theme", "high-contrast");
+          } else if (window.matchMedia("(prefers-color-scheme: light)").matches) {
+            document.documentElement.setAttribute("data-theme", "light");
+          }
+        }
+      } catch (_) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <noscript>
+      <div style="padding: 40px; font-family: ui-monospace, monospace">
+        <h1>TYPE</h1>
+        <p style="opacity: 0.7">type.review</p>
+        <p>This typing trainer needs JavaScript to capture keystrokes.</p>
+      </div>
+    </noscript>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

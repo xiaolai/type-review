@@ -1,0 +1,7 @@
+{
+  "id": "code-decorator-py",
+  "text": "def memoize(fn):\n    cache = {}\n    def wrapper(*args):\n        if args not in cache:\n            cache[args] = fn(*args)\n        return cache[args]\n    return wrapper\n\n@memoize\ndef fib(n):\n    return n if n < 2 else fib(n - 1) + fib(n - 2)",
+  "title": "Memoize decorator",
+  "author": "Python",
+  "license": "public domain"
+}

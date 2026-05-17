@@ -1,0 +1,7 @@
+{
+  "id": "code-fibonacci-py",
+  "text": "def fibonacci(n):\n    a, b = 0, 1\n    for _ in range(n):\n        yield a\n        a, b = b, a + b\n\nlist(fibonacci(10))",
+  "title": "Fibonacci",
+  "author": "Python",
+  "license": "public domain"
+}

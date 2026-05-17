@@ -1,0 +1,7 @@
+{
+  "id": "code-quicksort-rs",
+  "text": "fn quicksort<T: Ord>(arr: &mut [T]) {\n    if arr.len() <= 1 {\n        return;\n    }\n    let pivot = arr.len() / 2;\n    arr.swap(pivot, arr.len() - 1);\n    let mut i = 0;\n    for j in 0..arr.len() - 1 {\n        if arr[j] < arr[arr.len() - 1] {\n            arr.swap(i, j);\n            i += 1;\n        }\n    }\n    arr.swap(i, arr.len() - 1);\n}",
+  "title": "Quicksort",
+  "author": "Rust",
+  "license": "public domain"
+}

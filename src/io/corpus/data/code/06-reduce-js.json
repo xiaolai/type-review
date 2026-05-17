@@ -1,0 +1,7 @@
+{
+  "id": "code-reduce-js",
+  "text": "const sum = (xs) => xs.reduce((acc, x) => acc + x, 0);\nconst max = (xs) => xs.reduce((a, b) => (a > b ? a : b));\nconst flatten = (xs) => xs.reduce((acc, x) => acc.concat(x), []);",
+  "title": "Reduce",
+  "author": "JavaScript",
+  "license": "public domain"
+}

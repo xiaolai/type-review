@@ -1,0 +1,19 @@
+pre-commit:
+  parallel: true
+  commands:
+    typecheck:
+      run: pnpm typecheck
+    lint:
+      glob: "*.{ts,tsx}"
+      run: pnpm exec biome check {staged_files}
+    test-related:
+      glob: "*.{ts,tsx}"
+      run: pnpm exec vitest related --run {staged_files}
+
+pre-push:
+  parallel: true
+  commands:
+    test:
+      run: pnpm test
+    build:
+      run: pnpm build

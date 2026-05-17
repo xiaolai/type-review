@@ -1,0 +1,450 @@
+/* ─────────────────────────────────────────────────────────────
+ * typefaster design tokens
+ * ─────────────────────────────────────────────────────────────
+ * Every visual decision in the SPA references a CSS custom property
+ * defined below. Change a token here, the whole app moves together.
+ *
+ * Categories
+ *   1. Color           — surfaces, text, accent, semantic
+ *   2. Typography      — families, fluid type scale, weights, leading
+ *   3. Space           — 4px-base scale, used for padding/gap/margin
+ *   4. Radius          — corner curvature scale
+ *   5. Border / Stroke — widths
+ *   6. Shadow / Glow   — elevation
+ *   7. Motion          — durations + easings
+ *   8. Layout          — containers, breakpoint guidance, z-index
+ *
+ * Two themes are defined: dark (default) and light. Theme is set on
+ * <html data-theme="dark|light">. All tokens are present in both.
+ * ───────────────────────────────────────────────────────────── */
+
+
+/* 0 · Reset essentials */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+button { font: inherit; color: inherit; }
+input, textarea { font: inherit; }
+:focus-visible { outline: 2px solid var(--color-accent); outline-offset: 2px; border-radius: var(--r-2); }
+
+
+/* ─────────────────────────────────────────────────────────────
+ * sRGB fallback for browsers without `oklch()` support
+ * (pre-Safari 16.4 / Chrome 111 / Firefox 113, all 2023+).
+ * Wraps the essentials so the app remains legible — chrome
+ * surfaces, text, accent, error — even if every `oklch()`
+ * below is dropped as an unknown value. The full token set
+ * with oklch follows and overrides on modern browsers.
+ * ───────────────────────────────────────────────────────────── */
+@supports not (color: oklch(0% 0 0)) {
+  :root, [data-theme="dark"] {
+    --color-bg:        #15181c;
+    --color-surface:   #1d2127;
+    --color-surface-2: #252a31;
+    --color-surface-3: #2c323a;
+    --color-border:    #313841;
+    --color-border-strong: #4b5460;
+    --color-text:      #ebeef3;
+    --color-muted:     #aab1bb;
+    --color-dim:       #6f7682;
+    --color-faint:     #4c525c;
+    --color-accent:        #5fd1d8;
+    --color-accent-dim:    #4796a0;
+    --color-accent-faint:  rgba(95, 209, 216, 0.10);
+    --color-accent-area:   rgba(95, 209, 216, 0.08);
+    --color-accent-fg:     #0d1620;
+    --color-bg-elev:       rgba(21, 24, 28, 0.88);
+    --color-surface-elev:  rgba(29, 33, 39, 0.92);
+    --color-error:         #f06d62;
+    --color-error-faint:   rgba(240, 109, 98, 0.15);
+    --color-ok:            #6fcc8d;
+    --color-ok-faint:      rgba(111, 204, 141, 0.12);
+    --color-warn:          #e0a648;
+    --color-warn-faint:    rgba(224, 166, 72, 0.14);
+  }
+  [data-theme="light"] {
+    --color-bg:        #f7f8fa;
+    --color-surface:   #ffffff;
+    --color-surface-2: #eef0f4;
+    --color-text:      #14181d;
+    --color-muted:     #4a5260;
+    --color-dim:       #6c7480;
+    --color-border:    #d8dde4;
+    --color-accent:    #1a8c97;
+    --color-accent-fg: #ffffff;
+    --color-error:     #c44a3e;
+  }
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+ * Tokens — dark theme (default)
+ * ───────────────────────────────────────────────────────────── */
+:root, [data-theme="dark"] {
+
+  /* 1 · Color ──────────────────────────────────────────────── */
+
+  /* Surfaces — cool slate, slight blue undertone (away from warm browns) */
+  --color-bg:        oklch(0.150 0.012 250);
+  --color-surface:   oklch(0.195 0.012 250);
+  --color-surface-2: oklch(0.240 0.012 250);
+  --color-surface-3: oklch(0.290 0.012 250);
+  --color-border:    oklch(0.305 0.012 250);
+  --color-border-strong: oklch(0.420 0.012 250);
+
+  /* Text — high to low contrast, cool whites */
+  --color-text:    oklch(0.95 0.005 250);
+  --color-muted:   oklch(0.70 0.008 250);
+  --color-dim:     oklch(0.48 0.010 250);
+  --color-faint:   oklch(0.34 0.012 250);
+
+  /* Accent — single vivid cyan, monochromatic hue family.
+   * Deliberately not warm — distinct from typical AI-product palettes. */
+  --color-accent:        oklch(0.80 0.14 200);
+  --color-accent-dim:    oklch(0.58 0.10 200);
+  --color-accent-faint:  oklch(0.80 0.14 200 / 0.10);
+  --color-accent-area:   oklch(0.80 0.14 200 / 0.08);   /* chart fills */
+  --color-accent-fg:     oklch(0.12 0.04 240);          /* text on accent */
+
+  /* Translucent surfaces — for sticky headers, popovers, blurred chrome.
+   * Using color-mix so they auto-adapt when the base bg/surface change. */
+  --color-bg-elev:       color-mix(in oklch, var(--color-bg) 88%, transparent);
+  --color-surface-elev:  color-mix(in oklch, var(--color-surface) 92%, transparent);
+
+  /* Semantic */
+  --color-error:       oklch(0.68 0.17 25);
+  --color-error-faint: oklch(0.68 0.17 25 / 0.15);
+  --color-ok:          oklch(0.78 0.12 145);   /* used sparingly */
+  --color-ok-faint:    oklch(0.78 0.12 145 / 0.12);
+  --color-warn:        oklch(0.75 0.16 70);    /* alert/toast amber */
+  --color-warn-faint:  oklch(0.75 0.16 70 / 0.14);
+
+  /* Text colour for content sitting on top of the warm heat ramp
+   * (results page slow-key markers). The heat colours are warm reds —
+   * always-light text reads regardless of theme. */
+  --heat-fg: oklch(0.97 0.02 25);
+
+  /* Heatmap stops — slow → fast.
+   * Slow keys keep a warm red/amber signal (semantic warning).
+   * Fast keys match the cool slate surface so attention only goes
+   * where it's actionable. */
+  --heat-1: oklch(0.50 0.18 25 / 0.65);
+  --heat-2: oklch(0.46 0.14 40 / 0.55);
+  --heat-3: oklch(0.40 0.08 60 / 0.50);
+  --heat-4: oklch(0.30 0.03 250 / 0.50);
+  --heat-5: oklch(0.26 0.012 250);
+
+  --heat-glow: 0 0 18px oklch(0.60 0.20 25 / 0.45);
+
+
+  /* 2 · Typography ─────────────────────────────────────────── */
+
+  --font-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Geist Mono", "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+
+  /* Fluid type scale — clamp(min, fluid, max).
+   * Min targets mobile (320px), max targets desktop (1440+). */
+  --fs-10: clamp(0.625rem, 0.6rem + 0.1vw, 0.6875rem);
+  --fs-11: 0.6875rem;
+  --fs-12: clamp(0.75rem, 0.72rem + 0.13vw, 0.8125rem);
+  --fs-13: 0.8125rem;
+  --fs-14: clamp(0.8125rem, 0.79rem + 0.13vw, 0.875rem);
+  --fs-16: 1rem;
+  --fs-18: clamp(1rem, 0.95rem + 0.22vw, 1.125rem);
+  --fs-20: clamp(1.0625rem, 1rem + 0.27vw, 1.25rem);
+  --fs-22: clamp(1.125rem, 1.04rem + 0.4vw, 1.375rem);
+  --fs-24: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+  --fs-28: clamp(1.25rem, 1.05rem + 0.95vw, 1.75rem);
+  --fs-32: clamp(1.5rem, 1.25rem + 1.2vw, 2rem);
+  --fs-40: clamp(1.75rem, 1.4rem + 1.7vw, 2.5rem);
+  --fs-48: clamp(2rem, 1.5rem + 2.4vw, 3rem);
+  --fs-56: clamp(2.25rem, 1.7rem + 2.8vw, 3.5rem);
+  --fs-64: clamp(2.5rem, 1.8rem + 3.5vw, 4rem);
+  --fs-96: clamp(3.5rem, 2.2rem + 6.4vw, 6rem);
+
+  /* Practice-text size: must stay comfortable on phones, larger on desktop */
+  --fs-practice: clamp(1.125rem, 0.85rem + 1.4vw, 1.875rem);
+
+  /* Whitespace-marker glyph scale relative to its host text. The marker
+   * (·, →, ↵) overlays an otherwise-invisible character; it should read
+   * as a hint, not as a character — slightly smaller than the surrounding
+   * text. Used by .char--space/.char--tab/.char--newline pseudo-elements. */
+  --ws-marker-scale: 0.85;
+
+  --fw-light:     300;
+  --fw-regular:   400;
+  --fw-medium:    500;
+  --fw-semibold:  600;
+
+  --lh-tight:  1.05;
+  --lh-snug:   1.25;
+  --lh-normal: 1.5;
+  --lh-loose:  1.75;
+
+  --tracking-tight:  -0.022em;
+  --tracking-snug:   -0.015em;
+  --tracking-normal: 0;
+  --tracking-wide:   0.04em;
+  --tracking-wider:  0.12em;
+
+  /* Icon sizes — used by <Icon size={...}>.
+   * sm: inside small buttons / chips. md: standard. lg: hero. */
+  --icon-sm: 14px;
+  --icon-md: 18px;
+  --icon-lg: 22px;
+  --icon-xl: 32px;
+
+
+  /* 3 · Space ──────────────────────────────────────────────── */
+
+  --space-0:  0;
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-7:  28px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-14: 56px;
+  --space-16: 64px;
+  --space-20: 80px;
+  --space-24: 96px;
+  --space-32: 128px;
+
+  /* Gutter that grows with viewport — safe-area aware */
+  --gutter: max(var(--space-4), env(safe-area-inset-left));
+  --gutter-lg: max(var(--space-8), env(safe-area-inset-left));
+
+
+  /* 4 · Radius ─────────────────────────────────────────────── */
+
+  --r-1: 2px;
+  --r-2: 4px;
+  --r-3: 6px;
+  --r-4: 8px;
+  --r-5: 12px;
+  --r-6: 16px;
+  --r-pill: 999px;
+
+
+  /* 5 · Border ─────────────────────────────────────────────── */
+
+  --bw-1: 1px;
+  --bw-2: 2px;
+
+  /* Focus & error rings — width is shared so focus state never shifts layout */
+  --ring-w:     3px;
+  --ring-focus: 0 0 0 var(--ring-w) var(--color-accent-faint);
+  --ring-error: 0 0 0 var(--ring-w) var(--color-error-faint);
+
+
+  /* 6 · Shadow / Glow ──────────────────────────────────────── */
+
+  --shadow-sm:  0 1px 2px rgba(0,0,0,.2);
+  --shadow-md:  0 4px 16px rgba(0,0,0,.25), 0 1px 3px rgba(0,0,0,.18);
+  --shadow-lg:  0 20px 60px rgba(0,0,0,.4), 0 2px 8px rgba(0,0,0,.3);
+
+  --glow-accent: 0 0 12px oklch(0.80 0.14 200 / 0.55);
+
+
+  /* 7 · Motion ─────────────────────────────────────────────── */
+
+  --dur-instant: 80ms;
+  --dur-fast:    140ms;
+  --dur-base:    220ms;
+  --dur-slow:    360ms;
+
+  --ease-out:  cubic-bezier(.2, .7, .3, 1);
+  --ease-in:   cubic-bezier(.6, .04, .9, .3);
+  --ease-io:   cubic-bezier(.5, 0, .2, 1);
+
+
+  /* 8 · Layout ─────────────────────────────────────────────── */
+
+  --container-max: 1240px;
+  --content-max:   860px;     /* reading width for typing text */
+  --header-h:      56px;
+  --header-h-md:   64px;
+  --bottomnav-h:   56px;
+
+  /* Accessibility — minimum tappable area (WCAG 2.5.5).
+   * All interactive elements should meet or exceed this. */
+  --touch-target:  44px;
+
+  /* Backdrop blur — centralized for all translucent chrome */
+  --blur:          saturate(140%) blur(10px);
+
+  --z-base:    1;
+  --z-sticky:  10;
+  --z-overlay: 30;
+  --z-modal:   40;
+  --z-toast:   50;
+}
+
+
+/* Breakpoint convention used across styles.css + components.css:
+ *   sm:  640px      —  large phones
+ *   md:  768px      —  tablets / small laptops
+ *   lg:  1024px     —  laptops
+ *   xl:  1280px     —  desktops
+ *
+ * No CSS vars for these — CSS custom properties don't work in @media
+ * queries. The numbers are codified at each `@media (min-width: …)`
+ * site; keep them in sync with this list. */
+
+
+/* ─────────────────────────────────────────────────────────────
+ * Tokens — light theme
+ * Cool whites with slight blue undertone; deeper cyan accent.
+ * ───────────────────────────────────────────────────────────── */
+[data-theme="light"] {
+  --color-bg:        oklch(0.985 0.004 240);
+  --color-surface:   oklch(0.960 0.006 240);
+  --color-surface-2: oklch(0.930 0.006 240);
+  --color-surface-3: oklch(0.900 0.006 240);
+  --color-border:    oklch(0.870 0.006 240);
+  --color-border-strong: oklch(0.770 0.006 240);
+
+  --color-text:    oklch(0.20 0.012 250);
+  --color-muted:   oklch(0.42 0.010 250);
+  --color-dim:     oklch(0.58 0.008 250);
+  --color-faint:   oklch(0.78 0.006 240);
+
+  --color-accent:        oklch(0.55 0.14 210);
+  --color-accent-dim:    oklch(0.68 0.10 210);
+  --color-accent-faint:  oklch(0.55 0.14 210 / 0.10);
+  --color-accent-area:   oklch(0.55 0.14 210 / 0.08);
+  --color-accent-fg:     oklch(0.99 0 0);
+
+  --color-bg-elev:       color-mix(in oklch, var(--color-bg) 88%, transparent);
+  --color-surface-elev:  color-mix(in oklch, var(--color-surface) 92%, transparent);
+
+  --color-error:       oklch(0.55 0.18 25);
+  --color-error-faint: oklch(0.55 0.18 25 / 0.12);
+  --color-ok:          oklch(0.55 0.14 145);
+  --color-ok-faint:    oklch(0.55 0.14 145 / 0.10);
+  --color-warn:        oklch(0.62 0.16 70);
+  --color-warn-faint:  oklch(0.62 0.16 70 / 0.12);
+
+  --heat-fg: oklch(0.99 0 0);
+
+  --heat-1: oklch(0.68 0.20 25 / 0.55);
+  --heat-2: oklch(0.74 0.15 40 / 0.45);
+  --heat-3: oklch(0.80 0.10 60 / 0.40);
+  --heat-4: oklch(0.86 0.04 240 / 0.40);
+  --heat-5: oklch(0.93 0.012 240);
+
+  --shadow-sm:  0 1px 2px rgba(30,35,45,.06);
+  --shadow-md:  0 4px 16px rgba(30,35,45,.08), 0 1px 3px rgba(30,35,45,.05);
+  --shadow-lg:  0 20px 60px rgba(30,35,45,.12), 0 2px 8px rgba(30,35,45,.06);
+
+  --glow-accent: 0 0 12px oklch(0.55 0.14 210 / 0.30);
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+ * Tokens — sepia theme
+ * Warm paper tones, low blue light — easier on the eyes for long
+ * reading-style typing sessions in evening light.
+ * ───────────────────────────────────────────────────────────── */
+[data-theme="sepia"] {
+  --color-bg:        oklch(0.940 0.020 80);
+  --color-surface:   oklch(0.910 0.020 80);
+  --color-surface-2: oklch(0.870 0.022 80);
+  --color-surface-3: oklch(0.830 0.022 80);
+  --color-border:    oklch(0.770 0.022 75);
+  --color-border-strong: oklch(0.640 0.026 70);
+
+  --color-text:    oklch(0.28 0.020 60);
+  --color-muted:   oklch(0.50 0.018 60);
+  --color-dim:     oklch(0.62 0.016 65);
+  --color-faint:   oklch(0.75 0.014 70);
+
+  --color-accent:        oklch(0.52 0.16 40);
+  --color-accent-dim:    oklch(0.65 0.12 40);
+  --color-accent-faint:  oklch(0.52 0.16 40 / 0.12);
+  --color-accent-area:   oklch(0.52 0.16 40 / 0.08);
+  --color-accent-fg:     oklch(0.99 0 0);
+
+  --color-bg-elev:       color-mix(in oklch, var(--color-bg) 88%, transparent);
+  --color-surface-elev:  color-mix(in oklch, var(--color-surface) 92%, transparent);
+
+  --color-error:       oklch(0.50 0.18 25);
+  --color-error-faint: oklch(0.50 0.18 25 / 0.12);
+  --color-ok:          oklch(0.50 0.14 145);
+  --color-ok-faint:    oklch(0.50 0.14 145 / 0.10);
+  --color-warn:        oklch(0.58 0.16 70);
+  --color-warn-faint:  oklch(0.58 0.16 70 / 0.12);
+
+  --heat-fg: oklch(0.99 0 0);
+
+  --heat-1: oklch(0.62 0.20 25 / 0.55);
+  --heat-2: oklch(0.70 0.16 40 / 0.50);
+  --heat-3: oklch(0.78 0.12 60 / 0.40);
+  --heat-4: oklch(0.85 0.06 80 / 0.40);
+  --heat-5: oklch(0.92 0.020 80);
+}
+
+[data-theme="high-contrast"] {
+  /* Maximum-contrast palette for AAA legibility. Backgrounds collapse to
+   * pure black; text + accent are pure-white / saturated-yellow for both
+   * colour-blind safety and WCAG AAA contrast ratios. */
+  --color-bg:        oklch(0 0 0);
+  --color-surface:   oklch(0.10 0 0);
+  --color-surface-2: oklch(0.18 0 0);
+  --color-surface-3: oklch(0.26 0 0);
+  --color-border:    oklch(0.55 0 0);
+  --color-border-strong: oklch(0.75 0 0);
+
+  --color-text:    oklch(1 0 0);
+  --color-muted:   oklch(0.92 0 0);
+  --color-dim:     oklch(0.78 0 0);
+  --color-faint:   oklch(0.60 0 0);
+
+  /* Saturated yellow — high contrast against both pure black and pure white,
+   * and avoids the blue/red confusion of common colour-vision deficiencies. */
+  --color-accent:        oklch(0.92 0.18 95);
+  --color-accent-dim:    oklch(0.80 0.14 95);
+  --color-accent-faint:  oklch(0.92 0.18 95 / 0.18);
+  --color-accent-area:   oklch(0.92 0.18 95 / 0.12);
+  --color-accent-fg:     oklch(0 0 0);
+
+  --color-bg-elev:       var(--color-bg);
+  --color-surface-elev:  var(--color-surface);
+
+  --color-error:       oklch(0.78 0.22 25);
+  --color-error-faint: oklch(0.78 0.22 25 / 0.22);
+  --color-ok:          oklch(0.85 0.18 145);
+  --color-ok-faint:    oklch(0.85 0.18 145 / 0.22);
+  --color-warn:        oklch(0.90 0.20 90);
+  --color-warn-faint:  oklch(0.90 0.20 90 / 0.22);
+
+  --heat-fg: oklch(1 0 0);
+
+  /* Heat ramp simplified to two extremes + neutrals — busy gradients hurt
+   * the AAA contrast budget. */
+  --heat-1: oklch(0.70 0.22 25 / 0.85);
+  --heat-2: oklch(0.78 0.18 50 / 0.75);
+  --heat-3: oklch(0.85 0.14 85 / 0.65);
+  --heat-4: oklch(0.92 0.10 200 / 0.55);
+  --heat-5: oklch(0.95 0.04 200 / 0.45);
+
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --glow-accent: none;
+  --heat-glow: none;
+}
+
+
+/* ─────────────────────────────────────────────────────────────
+ * Reduced motion — respect user preference
+ * ───────────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0ms !important;
+    transition-duration: 0ms !important;
+  }
+}
