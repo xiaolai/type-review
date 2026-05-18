@@ -1783,9 +1783,7 @@ kbd {
  * color and text-decoration explicitly (also on the title/sub spans, in
  * case browsers propagate underline through inline children). */
 .page__body .hub__card,
-.page__body .hub__card:hover,
-.page__body .stats-teaser,
-.page__body .stats-teaser:hover {
+.page__body .hub__card:hover {
   text-decoration: none;
   color: var(--color-text);
 }
@@ -2002,36 +2000,3 @@ kbd {
   margin-top: var(--space-2);
 }
 
-/* ---- about-page site-stats teaser card --------------------- */
-/* A single banner card pinned at the top of the docs hub on /about,
- * pointing readers at the public-stats dashboard. Lives INSIDE the
- * `.hub` grid (semantically a nav link) but spans every column so it
- * reads as a banner rather than a fifth hub cell. Accent-bordered to
- * separate it visually from the docs cards below. */
-.stats-teaser {
-  grid-column: 1 / -1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4) var(--space-5);
-  border: var(--bw-1) solid var(--color-accent-dim);
-  border-radius: var(--r-3);
-  background: var(--color-accent-area);
-  color: var(--color-text);
-  text-decoration: none;
-  transition: background var(--dur-fast) var(--ease-out);
-}
-.stats-teaser:hover,
-.stats-teaser:focus-visible {
-  background: var(--color-accent-faint);
-}
-.stats-teaser__title {
-  font-family: var(--font-sans);
-  font-size: var(--fs-16);
-  font-weight: var(--fw-medium);
-}
-.stats-teaser__sub {
-  font-family: var(--font-mono);
-  font-size: var(--fs-12);
-  color: var(--color-muted);
-}

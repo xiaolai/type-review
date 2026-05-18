@@ -21,11 +21,9 @@ export function About(props: AboutProps): JSX.Element {
 
       <section class="page__body">
         <nav class="hub" aria-label="info pages">
-          <a class="stats-teaser" href="#/site-stats">
-            <span class="stats-teaser__title">Live site stats →</span>
-            <span class="stats-teaser__sub">
-              pageviews, visitors, top referrers — last 30 days, public.
-            </span>
+          <a class="hub__card" href="#/site-stats">
+            <span class="hub__title">Site stats</span>
+            <span class="hub__sub">Pageviews, visitors, top referrers — last 30 days.</span>
           </a>
           <a class="hub__card" href="#/features">
             <span class="hub__title">Features</span>
