@@ -46,6 +46,7 @@ import type { RouteName } from "./router";
 import { createRouter } from "./router";
 import { Settings } from "./Settings";
 import { ShareView } from "./Share";
+import { SiteStats } from "./SiteStats";
 import { StatsView } from "./Stats";
 import { createTheme } from "./theme";
 import { UserGuide } from "./UserGuide";
@@ -447,6 +448,9 @@ function InfoPages(props: {
       </Show>
       <Show when={props.routeName === "copyright"}>
         <Copyright onNavigate={props.onNavigate} />
+      </Show>
+      <Show when={props.routeName === "site-stats"}>
+        <SiteStats onNavigate={props.onNavigate} />
       </Show>
     </>
   );

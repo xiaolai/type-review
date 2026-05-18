@@ -1971,3 +1971,63 @@ kbd {
   0%   { background: var(--color-accent-faint); }
   100% { background: transparent; }
 }
+
+/* ---- site-stats page ---------------------------------------- */
+/* Two-up totals strip at the top of the public stats dashboard. */
+.metric-strip {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-5);
+  margin-bottom: var(--space-7);
+}
+.metric-strip__cell {
+  padding: var(--space-4) var(--space-5);
+  border: var(--bw-1) solid var(--color-border);
+  border-radius: var(--r-3);
+  background: var(--color-surface);
+}
+.metric-strip__value {
+  font-family: var(--font-mono);
+  font-size: var(--fs-28);
+  font-weight: var(--fw-medium);
+  color: var(--color-accent);
+  line-height: 1.1;
+}
+.metric-strip__label {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--color-muted);
+  margin-top: var(--space-2);
+}
+
+/* ---- about-page site-stats teaser card --------------------- */
+/* A single full-width card pinned above the docs hub on /about,
+ * pointing readers at the public-stats dashboard. Restyled hub
+ * card with an accent border so it doesn't get lost in the grid. */
+.stats-teaser {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4) var(--space-5);
+  border: var(--bw-1) solid var(--color-accent-dim);
+  border-radius: var(--r-3);
+  background: var(--color-accent-area);
+  color: var(--color-text);
+  text-decoration: none;
+  margin-bottom: var(--space-5);
+  transition: background var(--dur-fast) var(--ease-out);
+}
+.stats-teaser:hover,
+.stats-teaser:focus-visible {
+  background: var(--color-accent-faint);
+}
+.stats-teaser__title {
+  font-family: var(--font-sans);
+  font-size: var(--fs-16);
+  font-weight: var(--fw-medium);
+}
+.stats-teaser__sub {
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  color: var(--color-muted);
+}

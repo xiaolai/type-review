@@ -18,7 +18,8 @@ export type RouteName =
   | "credits"
   | "copyright"
   | "share"
-  | "articles";
+  | "articles"
+  | "site-stats";
 
 const VALID_ROUTES: ReadonlySet<RouteName> = new Set([
   "practice",
@@ -33,6 +34,7 @@ const VALID_ROUTES: ReadonlySet<RouteName> = new Set([
   "copyright",
   "share",
   "articles",
+  "site-stats",
 ]);
 
 /**
@@ -72,6 +74,7 @@ export const ROUTE_PARENT: Readonly<Record<RouteName, RouteName | null>> = {
   credits: "about",
   copyright: "about",
   articles: "about",
+  "site-stats": "about",
   share: "practice",
 };
 
