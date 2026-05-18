@@ -60,6 +60,11 @@ export default defineConfig({
         "src/ui/UserGuide.tsx",
         "src/ui/Credits.tsx",
         "src/ui/Copyright.tsx",
+        // SiteStats is a render of a remote JSON shape from /api/stats —
+        // a CF Pages Function that doesn't exist in the unit-test
+        // environment. Behaviour-equivalent to About/Features (prose +
+        // wiring, no logic) so excluded for the same reason.
+        "src/ui/SiteStats.tsx",
         "src/ui/components/Footer.tsx",
         "src/ui/components/BackLink.tsx",
       ],
