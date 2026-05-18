@@ -68,8 +68,10 @@ describe("aggregatePerKey", () => {
     expect(h?.misses).toBe(1);
     // Weighted mean ms: (10*100 + 5*140 + 5*200) / 20 = (1000+700+1000)/20 = 135
     expect(h?.avgMs).toBeCloseTo(135, 1);
-    // error rate: 1 / 21 ≈ 0.0476
-    expect(h?.errorRate).toBeCloseTo(1 / 21, 3);
+    // error rate: misses / hits where hitCount is total attempts (typos
+    // included) — 1 / 20 = 0.05. Not 1 / (hits + misses) — that double-counts
+    // the miss because the histogram already counted it in hitCount.
+    expect(h?.errorRate).toBeCloseTo(1 / 20, 3);
   });
 
   it("returns an empty map for empty input", () => {

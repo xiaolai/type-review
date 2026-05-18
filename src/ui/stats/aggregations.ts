@@ -30,6 +30,11 @@ export interface PerKeyStat {
  * Aggregate per-character stats by reducing the per-bigram histograms.
  * Each bigram contributes to the SECOND character's stats — that's the
  * keystroke whose timing the engine actually measures.
+ *
+ * `BigramHit.hitCount` counts every attempt (correct + typo) at this
+ * bigram; `BigramHit.missCount` is the subset of those attempts that
+ * were typos. So the total-attempt count is `hitCount`, NOT
+ * `hitCount + missCount` (which would double-count the typos).
  */
 export function aggregatePerKey(results: readonly RunResult[]): Map<string, PerKeyStat> {
   const acc = new Map<string, { hits: number; misses: number; weightedMs: number }>();
@@ -47,12 +52,11 @@ export function aggregatePerKey(results: readonly RunResult[]): Map<string, PerK
   }
   const out = new Map<string, PerKeyStat>();
   for (const [k, v] of acc) {
-    const attempts = v.hits + v.misses;
     out.set(k, {
       hits: v.hits,
       misses: v.misses,
       avgMs: v.hits > 0 ? v.weightedMs / v.hits : 0,
-      errorRate: attempts > 0 ? v.misses / attempts : 0,
+      errorRate: v.hits > 0 ? v.misses / v.hits : 0,
     });
   }
   return out;
@@ -350,7 +354,9 @@ export function aggregatePerFinger(perKey: ReadonlyMap<string, PerKeyStat>): Fin
       finger,
       hits: v.hits,
       avgMs: v.weightedMs / v.hits,
-      errorRate: v.misses / (v.hits + v.misses),
+      // `hits` is total attempts (typos included), so `misses / hits`
+      // is the correct rate — see `aggregatePerKey` for the same logic.
+      errorRate: v.misses / v.hits,
     });
   }
   return out;
