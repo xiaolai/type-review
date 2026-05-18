@@ -29,6 +29,30 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Hide the native text caret on read-only surfaces. `caret-color`
+ * defaults to `auto` and inherits, so caret-browsing (Chromium F7,
+ * Safari accessibility) parks a blinking caret anywhere the user
+ * clicks — on the typing surface, on heading text, even buttons.
+ * That caret is meaningless on this app's read-only chrome and
+ * actively confusing on the typing surface (which has its own custom
+ * `.caret-blink` indicator). Hide it on the body; real editable
+ * surfaces (inputs, textareas, contenteditable) opt back in.
+ *
+ * `:where()` keeps specificity at 0, so any element that genuinely
+ * wants a caret can override with a normal selector. */
+:where(body) {
+  caret-color: transparent;
+}
+:where(
+  input,
+  textarea,
+  [contenteditable],
+  [contenteditable=""],
+  [contenteditable="true"]
+) {
+  caret-color: auto;
+}
+
 kbd {
   display: inline-flex;
   align-items: center;
