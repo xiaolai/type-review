@@ -1,3 +1,4 @@
+import { PAUSE_CAP_MS } from "../typing/text-input";
 import type { Step } from "../typing/types";
 import { CHARS_PER_WORD, MS_PER_MINUTE } from "./constants";
 import { roundTo2 } from "./math";
@@ -25,23 +26,38 @@ export interface SecondBin {
  * consistency calculation sees pauses. The final bucket may be a partial
  * second — an accepted approximation that is negligible over real run lengths.
  *
- * Tab-freeze guard: the bin array is capped at MAX_BINS so a multi-hour pause
- * between two keystrokes can't allocate a 14,400-element array.
+ * Binning uses the same pause-capped active-time accounting as
+ * `TextInput.elapsedMs`: a gap between two keystrokes larger than
+ * `PAUSE_CAP_MS` contributes exactly `PAUSE_CAP_MS` to the cumulative
+ * offset, never more. Without this, a tab-freeze pause would inflate the
+ * raw timestamp gap to hours, producing hundreds of zero-char bins that
+ * tank the consistency calculation even though the saved run duration
+ * (which IS pause-capped) shows the user typed steadily.
+ *
+ * Tab-freeze guard: the bin array is capped at MAX_BINS as a second line
+ * of defence — a long sequence of capped gaps still can't produce more
+ * than 15 minutes of bins.
  */
 export function binBySecond(steps: readonly Step[]): SecondBin[] {
   const first = steps[0];
   if (first === undefined) {
     return [];
   }
-  const origin = first.timeStamp;
   const buckets = new Map<number, { chars: number; errors: number }>();
   let maxIndex = 0;
+  let activeMs = 0;
+  let prevTimeStamp: number | null = null;
   for (const step of steps) {
-    // Clock skew or out-of-order timestamps can yield negative rawIndex;
-    // clamp to 0 so the bucket lookup doesn't produce a hidden -1 key
-    // that later loops gracefully skip but make the data harder to reason
-    // about. Also caps the upper end against the tab-freeze guard.
-    const rawIndex = Math.floor((step.timeStamp - origin) / 1000);
+    if (prevTimeStamp !== null) {
+      const rawInterval = step.timeStamp - prevTimeStamp;
+      // Mirror TextInput.appendChar: floor negative (clock skew) at 0,
+      // cap long pauses at PAUSE_CAP_MS. The cumulative `activeMs` then
+      // matches `TextInput.elapsedMs` step-for-step.
+      const interval = Math.max(0, Math.min(rawInterval, PAUSE_CAP_MS));
+      activeMs += interval;
+    }
+    prevTimeStamp = step.timeStamp;
+    const rawIndex = Math.floor(activeMs / 1000);
     const index = Math.max(0, Math.min(rawIndex, MAX_BINS - 1));
     maxIndex = Math.max(maxIndex, index);
     const bucket = buckets.get(index) ?? { chars: 0, errors: 0 };
