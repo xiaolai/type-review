@@ -20,14 +20,13 @@ export function About(props: AboutProps): JSX.Element {
       </header>
 
       <section class="page__body">
-        <a class="stats-teaser" href="#/site-stats">
-          <span class="stats-teaser__title">Live site stats →</span>
-          <span class="stats-teaser__sub">
-            pageviews, visitors, top referrers — last 30 days, public.
-          </span>
-        </a>
-
         <nav class="hub" aria-label="info pages">
+          <a class="stats-teaser" href="#/site-stats">
+            <span class="stats-teaser__title">Live site stats →</span>
+            <span class="stats-teaser__sub">
+              pageviews, visitors, top referrers — last 30 days, public.
+            </span>
+          </a>
           <a class="hub__card" href="#/features">
             <span class="hub__title">Features</span>
             <span class="hub__sub">Everything TYPE does, in one scan.</span>

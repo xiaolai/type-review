@@ -1783,7 +1783,9 @@ kbd {
  * color and text-decoration explicitly (also on the title/sub spans, in
  * case browsers propagate underline through inline children). */
 .page__body .hub__card,
-.page__body .hub__card:hover {
+.page__body .hub__card:hover,
+.page__body .stats-teaser,
+.page__body .stats-teaser:hover {
   text-decoration: none;
   color: var(--color-text);
 }
@@ -2001,10 +2003,13 @@ kbd {
 }
 
 /* ---- about-page site-stats teaser card --------------------- */
-/* A single full-width card pinned above the docs hub on /about,
- * pointing readers at the public-stats dashboard. Restyled hub
- * card with an accent border so it doesn't get lost in the grid. */
+/* A single banner card pinned at the top of the docs hub on /about,
+ * pointing readers at the public-stats dashboard. Lives INSIDE the
+ * `.hub` grid (semantically a nav link) but spans every column so it
+ * reads as a banner rather than a fifth hub cell. Accent-bordered to
+ * separate it visually from the docs cards below. */
 .stats-teaser {
+  grid-column: 1 / -1;
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -2014,7 +2019,6 @@ kbd {
   background: var(--color-accent-area);
   color: var(--color-text);
   text-decoration: none;
-  margin-bottom: var(--space-5);
   transition: background var(--dur-fast) var(--ease-out);
 }
 .stats-teaser:hover,
