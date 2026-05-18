@@ -448,3 +448,45 @@ input, textarea { font: inherit; }
     transition-duration: 0ms !important;
   }
 }
+
+/* ─────────────────────────────────────────────────────────────
+ * Forced colours — Windows high-contrast mode (and similar).
+ *
+ * In `forced-colors: active`, the OS replaces our entire colour
+ * palette with the user's chosen scheme (e.g. white-on-black). The
+ * adaptive heatmap (red→cyan), heatmap intensity tints, and the
+ * focused-key accent all rely on colour to convey meaning, so we
+ * remap to system keywords that carry semantic intent in that mode.
+ *
+ * `border` is added to elements that previously relied on background
+ * colour alone (heatmap cells, focused key) so structure survives
+ * the colour wipe. Outline width uses `forced-color-adjust: auto`
+ * defaults — overriding to `none` would defeat the purpose.
+ *
+ * Reference: https://developer.mozilla.org/en-US/docs/Web/CSS/@media/forced-colors
+ * ───────────────────────────────────────────────────────────── */
+@media (forced-colors: active) {
+  /* Focused key gains a high-contrast outline so the "weakest letter"
+   * highlight survives the OS palette wipe. */
+  .kb__key--focused {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+  /* Slow-key indicator: same idea, different intent — keep visually
+   * distinct from the focused key. */
+  .kb__key--slow {
+    outline: 2px dashed Mark;
+    outline-offset: -2px;
+  }
+  /* Character status on the typing surface — under forced-colors the
+   * background tints get wiped, so add a thin underline as a
+   * colour-independent secondary cue. */
+  .char--correct {
+    text-decoration: underline;
+    text-decoration-color: LinkText;
+  }
+  .char--incorrect {
+    text-decoration: underline wavy;
+    text-decoration-color: Mark;
+  }
+}
