@@ -20,6 +20,13 @@ export function About(props: AboutProps): JSX.Element {
       </header>
 
       <section class="page__body">
+        <a class="stats-teaser" href="#/site-stats">
+          <span class="stats-teaser__title">Live site stats →</span>
+          <span class="stats-teaser__sub">
+            pageviews, visitors, top referrers — last 30 days, public.
+          </span>
+        </a>
+
         <nav class="hub" aria-label="info pages">
           <a class="hub__card" href="#/features">
             <span class="hub__title">Features</span>
@@ -64,9 +71,19 @@ export function About(props: AboutProps): JSX.Element {
 
         <h3>Privacy summary</h3>
         <p>
-          TYPE collects nothing. There is no analytics, no telemetry, no cookies, no third-party
-          script, no font loaded from a CDN at runtime, no user account, no server. The app is a
-          single page that loads once and then runs entirely in your browser.
+          TYPE runs entirely in your browser — no account, no server-side state, no cookies, no
+          localStorage outside the <code>type-review:</code> namespace, fonts served from this
+          origin (not Google's CDN).
+        </p>
+        <p>
+          The one piece of third-party JS the page loads is{" "}
+          <a href="https://www.cloudflare.com/web-analytics/" rel="noopener">
+            Cloudflare Web Analytics
+          </a>{" "}
+          — cookieless, no cross-site tracking, no PII; it counts pageviews and visits by country /
+          referrer. Those aggregate numbers are public — see{" "}
+          <a href="#/site-stats">live site stats</a>. Nothing about your practice runs, your
+          keystrokes, or your uploaded text is collected or transmitted.
         </p>
 
         <h3>Where your data lives</h3>
