@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { createKeyEventBus, type KeyEventBus } from "./key-event-bus";
-import { attachKeySounds, categorizeKey, type KeySoundsPlayer } from "./key-sounds";
+import { attachKeySounds, categorizeKey, type KeySoundsPlayer, panForCode } from "./key-sounds";
 
 let bus: KeyEventBus | null = null;
 let player: KeySoundsPlayer | null = null;
@@ -29,6 +29,8 @@ describe("categorizeKey", () => {
     ["Tab", "tab"],
     ["Enter", "enter"],
     ["Escape", "esc"],
+    // Backspace shares the `esc` category — see categorizeKey docstring.
+    ["Backspace", "esc"],
     [" ", "space"],
   ])("routes special key %s to category %s", (key, expected) => {
     expect(categorizeKey(key)).toBe(expected);
@@ -50,6 +52,68 @@ describe("categorizeKey", () => {
   });
 });
 
+describe("panForCode", () => {
+  // Sample a few keys per row, including the dividing-line columns the
+  // user asked for: 5/T/G/B go LEFT, 6/Y/H/N go RIGHT.
+  it.each([
+    "Digit1",
+    "Digit5", // numeric row, far-left and the LEFT dividing column
+    "KeyQ",
+    "KeyT", // top row
+    "KeyA",
+    "KeyG", // home row
+    "KeyZ",
+    "KeyB", // bottom row
+    "Tab",
+    "CapsLock",
+    "ShiftLeft", // column-zero modifiers
+    "Backquote",
+    "Escape", // top-left fixed keys
+    "F1",
+    "F6", // first-half function row
+  ])("routes left-hand key %s to negative pan", (code) => {
+    expect(panForCode(code)).toBeLessThan(0);
+  });
+
+  it.each([
+    "Digit6",
+    "Digit0", // numeric row, RIGHT dividing column and far-right
+    "Minus",
+    "Equal",
+    "Backspace", // numeric-row right tail
+    "KeyY",
+    "KeyP", // top row
+    "KeyH",
+    "KeyL",
+    "Semicolon",
+    "Enter", // home row + carriage return
+    "KeyN",
+    "KeyM",
+    "Slash",
+    "ShiftRight", // bottom row
+    "F7",
+    "F12", // second-half function row
+    "ArrowUp",
+    "PageDown", // right-hand navigation cluster
+  ])("routes right-hand key %s to positive pan", (code) => {
+    expect(panForCode(code)).toBeGreaterThan(0);
+  });
+
+  it.each([
+    "Space", // hit by both thumbs
+    "ContextMenu", // varies by keyboard; safer to leave centred
+    "Unidentified", // dead / unknown
+    "", // mobile soft keyboards often emit empty code
+  ])("routes ambiguous / unknown key %s to centre (0)", (code) => {
+    expect(panForCode(code)).toBe(0);
+  });
+
+  it("returns a subtle pan magnitude (≤ 0.5) so the effect is spatial not theatrical", () => {
+    expect(Math.abs(panForCode("KeyA"))).toBeLessThanOrEqual(0.5);
+    expect(Math.abs(panForCode("KeyL"))).toBeLessThanOrEqual(0.5);
+  });
+});
+
 /* ───────────── integration with a fake AudioContext ───────────── */
 
 interface FakeAudioContext {
@@ -62,6 +126,7 @@ interface FakeAudioContext {
   createBufferSource: () => AudioBufferSourceNode;
   createBiquadFilter: () => BiquadFilterNode;
   createOscillator: () => OscillatorNode;
+  createStereoPanner: () => StereoPannerNode;
   resume: () => Promise<void>;
   close: () => Promise<void>;
 }
@@ -130,6 +195,13 @@ function makeFakeAudioContext(): { ctx: FakeAudioContext; closeCalled: () => boo
         frequency: fakeAudioParam(),
         start: vi.fn(),
         stop: vi.fn(),
+      });
+      return node;
+    },
+    createStereoPanner: () => {
+      const node = fakeNode() as StereoPannerNode;
+      Object.assign(node, {
+        pan: fakeAudioParam(),
       });
       return node;
     },

@@ -52,7 +52,7 @@ function formatDate(iso: string): string {
 function formatGenerated(iso: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return iso;
-  return d.toISOString().replace("T", " ").slice(0, 16) + " UTC";
+  return `${d.toISOString().replace("T", " ").slice(0, 16)} UTC`;
 }
 
 /**

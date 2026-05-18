@@ -44,7 +44,7 @@ export type {
 } from "./key-event-bus";
 export { createKeyEventBus } from "./key-event-bus";
 export type { KeySoundsOptions, KeySoundsPlayer } from "./key-sounds";
-export { attachKeySounds, categorizeKey } from "./key-sounds";
+export { attachKeySounds, categorizeKey, panForCode } from "./key-sounds";
 export type { LoadResult, ProfileStore } from "./persistence";
 export {
   clearSavedMarker,

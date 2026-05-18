@@ -121,8 +121,12 @@ const MECHVIBE: SynthPackData = {
 
 /**
  * Real mechanical-typewriter recording, sliced randomly per keystroke.
- * Source: BigSoundBank "Typewriter #1" — CC0 (public domain).
- * https://bigsoundbank.com/detail-1065-typewriter.html
+ * Source: BigSoundBank "Typewriter #2" — CC0 (public domain).
+ * https://bigsoundbank.com/typewriter-2-s2835.html
+ * Hermes Precisa 305, ~83 s stereo. The Hermes is a Swiss 1960s
+ * desktop typewriter with crisp typebar action against a heavy steel
+ * frame — gives the "newsroom" sharp snap rather than a soft portable
+ * tick. Sliced randomly so ~1000+ unique slices per session.
  * See CREDITS.md.
  */
 const TYPEWRITER: SpritePackData = {
@@ -196,7 +200,25 @@ function makeNoiseBuffer(ctx: BaseAudioContext, durationMs: number): AudioBuffer
   return buffer;
 }
 
-function playNoiseBurst(ctx: AudioContext, dest: AudioNode, cfg: NoiseConfig): void {
+/**
+ * If `pan` is non-zero and the runtime supports StereoPannerNode (every
+ * browser since 2014), returns a freshly-created panner connected to
+ * `dest` — callers connect their per-keystroke graph INTO the returned
+ * node so the panner sits between the source and the destination. Pan
+ * value is clamped to [-1, +1]. If `pan === 0`, returns `dest` directly
+ * so no extra node is allocated for centre-positioned keystrokes (the
+ * common case: Space, modifier-less keys, unknown codes).
+ */
+function destinationWithPan(ctx: AudioContext, dest: AudioNode, pan: number): AudioNode {
+  if (pan === 0 || typeof ctx.createStereoPanner !== "function") return dest;
+  const panner = ctx.createStereoPanner();
+  panner.pan.setValueAtTime(Math.max(-1, Math.min(1, pan)), ctx.currentTime);
+  panner.connect(dest);
+  return panner;
+}
+
+function playNoiseBurst(ctx: AudioContext, dest: AudioNode, cfg: NoiseConfig, pan: number): void {
+  const out = destinationWithPan(ctx, dest, pan);
   const src = ctx.createBufferSource();
   src.buffer = makeNoiseBuffer(ctx, cfg.durationMs);
   const filter = ctx.createBiquadFilter();
@@ -209,12 +231,13 @@ function playNoiseBurst(ctx: AudioContext, dest: AudioNode, cfg: NoiseConfig): v
   gain.gain.setValueAtTime(0, now);
   gain.gain.linearRampToValueAtTime(cfg.peak, now + 0.001);
   gain.gain.exponentialRampToValueAtTime(0.0001, end);
-  src.connect(filter).connect(gain).connect(dest);
+  src.connect(filter).connect(gain).connect(out);
   src.start(now);
   src.stop(end + 0.02);
 }
 
-function playOscBurst(ctx: AudioContext, dest: AudioNode, cfg: OscConfig): void {
+function playOscBurst(ctx: AudioContext, dest: AudioNode, cfg: OscConfig, pan: number): void {
+  const out = destinationWithPan(ctx, dest, pan);
   const osc = ctx.createOscillator();
   osc.type = cfg.type;
   osc.frequency.value = cfg.freq;
@@ -224,7 +247,7 @@ function playOscBurst(ctx: AudioContext, dest: AudioNode, cfg: OscConfig): void 
   gain.gain.setValueAtTime(0, now);
   gain.gain.linearRampToValueAtTime(cfg.peak, now + 0.002);
   gain.gain.exponentialRampToValueAtTime(0.0001, end);
-  osc.connect(gain).connect(dest);
+  osc.connect(gain).connect(out);
   osc.start(now);
   osc.stop(end + 0.02);
 }
@@ -296,7 +319,9 @@ function playSpriteSlice(
   buffer: AudioBuffer,
   offsets: readonly number[],
   sliceMs: number,
+  pan: number,
 ): void {
+  const out = destinationWithPan(ctx, dest, pan);
   const sliceSec = Math.min(sliceMs / 1000, buffer.duration);
   // Pick from the curated peak list when available. The empty-array
   // fallback should never fire in practice (the BigSoundBank clip has
@@ -314,7 +339,7 @@ function playSpriteSlice(
   gain.gain.linearRampToValueAtTime(1, now + FADE_IN_SEC);
   gain.gain.setValueAtTime(1, now + Math.max(0, sliceSec - FADE_OUT_SEC));
   gain.gain.linearRampToValueAtTime(0, now + sliceSec);
-  src.connect(gain).connect(dest);
+  src.connect(gain).connect(out);
   src.start(now, offset, sliceSec);
 }
 
@@ -323,8 +348,12 @@ export interface KeySoundPack {
   name: string;
   /** Display label. */
   label: string;
-  /** Play one click for the given category. */
-  play(category: SoundCategory): void;
+  /**
+   * Play one click for the given category, optionally panned. `pan` is the
+   * stereo position in [-1, +1] (-1 = full left, 0 = centre, +1 = full
+   * right). Callers source it from `panForCode(event.code)` in key-sounds.
+   */
+  play(category: SoundCategory, pan?: number): void;
 }
 
 /**
@@ -356,10 +385,10 @@ function createSynthPack(
   return {
     name: data.name,
     label: data.label,
-    play(category) {
+    play(category, pan = 0) {
       const config = data.sounds[category] ?? data.sounds.default;
-      if (config.noise) playNoiseBurst(ctx, destination, config.noise);
-      if (config.osc) playOscBurst(ctx, destination, config.osc);
+      if (config.noise) playNoiseBurst(ctx, destination, config.noise, pan);
+      if (config.osc) playOscBurst(ctx, destination, config.osc, pan);
     },
   };
 }
@@ -413,29 +442,30 @@ function createSpritePack(
   // finished loading. When the load resolves we flush it so the user's
   // first keystroke after pack-init produces a (slightly late) sound
   // instead of being silently dropped. Holding only ONE pending entry
-  // avoids a "stuttering catch-up burst" on fast typing.
-  let pendingCategory: SoundCategory | null = null;
+  // avoids a "stuttering catch-up burst" on fast typing. Pan is part
+  // of the queued state so the flush plays at the correct hand-position.
+  let pending: { category: SoundCategory; pan: number } | null = null;
 
   loadSprite(data.url, ctx, state, () => {
-    if (pendingCategory === null || state.buffer === null) return;
-    const cat = pendingCategory;
-    pendingCategory = null;
+    if (pending === null || state.buffer === null) return;
+    const { category: cat, pan } = pending;
+    pending = null;
     const sliceMs = data.sliceMs[cat] ?? data.sliceMs.default;
-    playSpriteSlice(ctx, destination, state.buffer, state.peakOffsets, sliceMs);
+    playSpriteSlice(ctx, destination, state.buffer, state.peakOffsets, sliceMs, pan);
   });
 
   return {
     name: data.name,
     label: data.label,
-    play(category) {
+    play(category, pan = 0) {
       if (state.buffer === null) {
         // Buffer still loading — queue the most-recent category so the
         // first audible keystroke arrives as soon as we can produce it.
-        pendingCategory = category;
+        pending = { category, pan };
         return;
       }
       const sliceMs = data.sliceMs[category] ?? data.sliceMs.default;
-      playSpriteSlice(ctx, destination, state.buffer, state.peakOffsets, sliceMs);
+      playSpriteSlice(ctx, destination, state.buffer, state.peakOffsets, sliceMs, pan);
     },
   };
 }

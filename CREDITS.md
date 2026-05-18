@@ -4,14 +4,16 @@
 
 ### `public/sounds/typewriter.ogg`
 
-- **Source**: BigSoundBank — "Typewriter #1" (sound #1065)
-- **URL**: https://bigsoundbank.com/detail-1065-typewriter.html
+- **Source**: BigSoundBank — "Typewriter #2" (sound #2835)
+- **URL**: https://bigsoundbank.com/typewriter-2-s2835.html
 - **License**: CC0 (public domain — no attribution legally required;
   this credit is courtesy)
-- **Description**: Several keystrokes and spacebar of a mechanical
-  typewriter, 25 s, mono, 48 kHz.
+- **Description**: Continuous typing session on a Hermes Precisa 305
+  (Swiss 1960s desktop typewriter, known for crisp typebar action
+  against a heavy steel frame), 83 s, stereo, 48 kHz / 24-bit.
+  Recorded by Joseph SARDIN with a Tascam DR-40 + Sennheiser ME66.
 - **Used by**: the `typewriter` keyboard sound pack
-  (`src/io/sound-packs.ts`). Played as random ~120 ms slices per
+  (`src/io/sound-packs.ts`). Played as random ~80 ms slices per
   keystroke so each keypress sounds subtly different.
 
 ---
