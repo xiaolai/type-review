@@ -29,18 +29,27 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-/* Hide the native text caret on read-only surfaces. `caret-color`
- * defaults to `auto` and inherits, so caret-browsing (Chromium F7,
- * Safari accessibility) parks a blinking caret anywhere the user
- * clicks — on the typing surface, on heading text, even buttons.
- * That caret is meaningless on this app's read-only chrome and
- * actively confusing on the typing surface (which has its own custom
- * `.caret-blink` indicator). Hide it on the body; real editable
- * surfaces (inputs, textareas, contenteditable) opt back in.
+/* Site-wide cursor + caret discipline.
  *
- * `:where()` keeps specificity at 0, so any element that genuinely
- * wants a caret can override with a normal selector. */
+ * `cursor: default` overrides the browser's I-beam over selectable
+ * text. The I-beam suggests "place a cursor here", but on this app
+ * there is nowhere to place a cursor — the page is read-only chrome
+ * + the typing surface (which already has its own custom indicator).
+ * Text selection still works on drag, so the affordance is preserved
+ * without the visual noise. Editable surfaces opt back into `text`.
+ *
+ * `caret-color: transparent` hides the native blinking caret.
+ * `caret-color` defaults to `auto` and inherits, so caret-browsing
+ * (Chromium F7, Safari accessibility) otherwise parks a blinking
+ * caret anywhere the user clicks — including the typing surface,
+ * where it's confusing alongside our own `.caret-blink` indicator.
+ *
+ * `:where()` keeps specificity at 0 so any element that genuinely
+ * wants a caret/cursor can override with a normal selector.
+ * Buttons / links already declare `cursor: pointer` elsewhere and
+ * override this fine. */
 :where(body) {
+  cursor: default;
   caret-color: transparent;
 }
 :where(
@@ -50,6 +59,7 @@ body {
   [contenteditable=""],
   [contenteditable="true"]
 ) {
+  cursor: text;
   caret-color: auto;
 }
 
