@@ -9,24 +9,24 @@ import {
 } from "./sources";
 
 describe("alphabetOf", () => {
-  it("returns lowercase letters only, deduplicated", () => {
+  it("returns lowercase letters, deduplicated", () => {
     const s = alphabetOf("The Quick Brown Fox");
     expect(Array.from(s).sort()).toEqual(
       ["b", "c", "e", "f", "h", "i", "k", "n", "o", "q", "r", "t", "u", "w", "x"].sort(),
     );
   });
-  it("ignores digits, punctuation, and whitespace", () => {
+  it("includes digits and punctuation but excludes whitespace", () => {
     const s = alphabetOf("abc 123, def!");
-    expect(Array.from(s).sort()).toEqual(["a", "b", "c", "d", "e", "f"]);
+    expect(Array.from(s).sort()).toEqual(["!", ",", "1", "2", "3", "a", "b", "c", "d", "e", "f"]);
   });
-  it("returns an empty set for letterless input", () => {
-    expect(alphabetOf("123 !? .")).toEqual(new Set());
+  it("returns digits and punctuation for letterless input", () => {
+    expect(alphabetOf("123 !? .")).toEqual(new Set(["1", "2", "3", "!", "?", "."]));
   });
 });
 
 describe("fitsAlphabet", () => {
-  function entry(letters: string): CorpusEntry {
-    return makeEntry("test", "quote", letters);
+  function entry(text: string): CorpusEntry {
+    return makeEntry("test", "quote", text);
   }
 
   it("true when every letter in the entry is in the filter", () => {
@@ -38,7 +38,18 @@ describe("fitsAlphabet", () => {
     const filter = new Set(["a", "b", "c"]);
     expect(fitsAlphabet(entry("abcd"), filter)).toBe(false);
   });
+  it("true when entries contain digits/punctuation absent from the filter (split semantics)", () => {
+    // Split semantics: the filter only gates LETTERS. Digits and punctuation
+    // in curated content always pass — the user's `includeNumbers` /
+    // `includePunctuation` toggles only control drill GENERATION and
+    // curriculum tracking, not whether a quote with commas is shown.
+    const filter = new Set(["a", "b", "c"]);
+    expect(fitsAlphabet(entry("abc,"), filter)).toBe(true);
+    expect(fitsAlphabet(entry("abc1"), filter)).toBe(true);
+    expect(fitsAlphabet(entry("a, b. c 1789!"), filter)).toBe(true);
+  });
   it("true for entries containing only non-letter characters", () => {
+    // No letters in the entry, so the filter has nothing to reject.
     const filter = new Set(["a"]);
     expect(fitsAlphabet(entry("123 !? ."), filter)).toBe(true);
   });
@@ -93,7 +104,7 @@ describe("makeEntry", () => {
     expect(e.kind).toBe("quote");
     expect(e.text).toBe("Hello, World");
     expect(e.length).toBe(12);
-    expect(Array.from(e.alphabet).sort()).toEqual(["d", "e", "h", "l", "o", "r", "w"]);
+    expect(Array.from(e.alphabet).sort()).toEqual([",", "d", "e", "h", "l", "o", "r", "w"]);
     expect(e.attribution?.author).toBe("Anon");
   });
   it("omits attribution when none is provided", () => {

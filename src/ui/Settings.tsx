@@ -404,6 +404,10 @@ export function Settings(props: SettingsProps): JSX.Element {
                     />
                     <span>include punctuation in the adaptive alphabet</span>
                   </label>
+                  <p class="field__hint">
+                    drill content (pseudo-words) honours these toggles; curated sources (quotes /
+                    codes / mine) always pass through with their natural punctuation and digits.
+                  </p>
                 </div>
               </fieldset>
             </section>

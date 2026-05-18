@@ -24,7 +24,9 @@ export function UserGuide(props: UserGuideProps): JSX.Element {
         <p>
           <b>Adaptive mode</b> drills your weakest keys. It starts with a small alphabet (about 5–6
           letters) and unlocks one new letter each time you reach the target speed on the slowest
-          current letter. Text in adaptive mode is composed only of unlocked letters.
+          current letter. Letters in your adaptive text are restricted to your unlocked set; digits
+          and punctuation in curated content (quotes, code, your library) pass through regardless —
+          see Numbers and punctuation below.
         </p>
         <p>
           <b>Benchmark mode</b> is a run on a passage from the configured source (quotes / codes /
@@ -70,9 +72,26 @@ export function UserGuide(props: UserGuideProps): JSX.Element {
 
         <h3>Numbers and punctuation</h3>
         <p>
-          The plain-words benchmark source can sprinkle digits and common punctuation into runs. Off
-          by default — turn on in Settings when you're ready to practise the symbols too.
+          The two toggles in Settings → Practice → Alphabet control how the curriculum and the drill
+          generators treat digits and punctuation:
         </p>
+        <ul>
+          <li>
+            <b>Drill content</b> (the <code>drills</code> pseudo-word generator and the
+            <code>difficult</code> word list) honours these toggles. Off ⇒ no digits or punctuation
+            in generated text.
+          </li>
+          <li>
+            <b>Curated content</b> (<b>quotes</b>, <b>codes</b>, <b>mine</b>) always passes through
+            with its natural digits and punctuation regardless of the toggle — a quote with commas
+            is still a quote.
+          </li>
+          <li>
+            <b>Curriculum tracking</b> — when on, the adaptive engine adds digits / punctuation to
+            its unlock sequence and tracks per-key speed for them. When off, those keys are not part
+            of your curriculum but you'll still see them in natural prose.
+          </li>
+        </ul>
 
         <h3>Custom text</h3>
         <p>
@@ -120,13 +139,13 @@ export function UserGuide(props: UserGuideProps): JSX.Element {
           </li>
         </ul>
         <p>
-          The single weakest active letter is marked with a subtle accent fill — that's the
-          letter the adaptive engine has flagged as currently weakest. The label below the
-          keyboard echoes it as <code>weakest: x</code>. It's a status indicator, not a content
-          filter — the passage you read isn't biased toward that letter. (In <b>auto</b> mode the
-          alphabet is restricted to letters you've unlocked; in <b>quotes</b>, <b>codes</b>, <b>mine</b>
-          and the other explicit sources the alphabet filter is dropped and you read whatever the
-          source serves.)
+          The single weakest active letter is marked with a subtle accent fill — that's the letter
+          the adaptive engine has flagged as currently weakest. The label below the keyboard echoes
+          it as <code>weakest: x</code>. It's a status indicator, not a content filter — the passage
+          you read isn't biased toward that letter. In <b>auto</b> mode the LETTERS in your passage
+          are restricted to your unlocked alphabet (digits and punctuation always pass — see Numbers
+          and punctuation above); in <b>quotes</b>, <b>codes</b>, <b>mine</b> and the other explicit
+          sources the alphabet filter is dropped entirely and you read whatever the source serves.
         </p>
 
         <h3>Keystroke sounds</h3>

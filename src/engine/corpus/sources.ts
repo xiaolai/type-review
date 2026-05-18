@@ -26,7 +26,13 @@ export interface CorpusEntry {
   id: string;
   kind: SourceKind;
   text: string;
-  /** Lowercase letters appearing in `text` — pre-computed for fast filter. */
+  /**
+   * Lowercase typeable characters appearing in `text` — pre-computed for
+   * fast filter and stats. Includes letters, digits, and punctuation;
+   * whitespace (space / tab / newline) is excluded because it isn't
+   * gated by the adaptive curriculum. Only the LETTER subset is enforced
+   * by `fitsAlphabet`; see that function for the rationale.
+   */
   alphabet: ReadonlySet<string>;
   /** Length of `text` in code units. */
   length: number;
@@ -37,9 +43,11 @@ export interface CorpusEntry {
 
 export interface CorpusSourceContext {
   /**
-   * Allowed letters for adaptive mode. Every letter in a returned entry's
-   * `alphabet` must be a member. `undefined` means "no alphabet constraint" —
-   * the benchmark-mode case.
+   * Allowed letters for adaptive mode. Every LETTER in a returned entry's
+   * `alphabet` must be a member; digits and punctuation in curated
+   * content are always allowed regardless of the filter (see
+   * `fitsAlphabet`). `undefined` means "no alphabet constraint" — the
+   * benchmark-mode case.
    */
   filter?: ReadonlySet<string>;
   /** Approximate desired length in characters. Source may return ±50%. */
@@ -56,22 +64,39 @@ export interface CorpusSource {
 /* ───────────────────────── helpers ─────────────────────────── */
 
 const LETTER = /\p{Letter}/u;
+const WHITESPACE = /\s/;
 
-/** Returns the set of lowercase letters appearing in `text`. */
+/**
+ * Returns the set of lowercase typeable characters appearing in `text`.
+ * Letters are lowercased; digits and punctuation are kept as-is.
+ * Whitespace is excluded because the adaptive curriculum doesn't gate
+ * spaces / newlines — every alphabet implicitly types them.
+ */
 export function alphabetOf(text: string): ReadonlySet<string> {
   const set = new Set<string>();
   for (const ch of text) {
-    if (LETTER.test(ch)) {
-      set.add(ch.toLowerCase());
-    }
+    if (WHITESPACE.test(ch)) continue;
+    set.add(ch.toLowerCase());
   }
   return set;
 }
 
-/** True iff every letter in `entry.alphabet` is in `filter`. */
+/**
+ * True iff every LETTER in `entry.alphabet` is in `filter`.
+ *
+ * Split semantics: the filter only gates LETTERS. Digits and punctuation
+ * in curated content (quotes, code, user passages) always pass through
+ * regardless of `includeNumbers` / `includePunctuation` — those toggles
+ * only control whether the curriculum tracks digits/punctuation as
+ * dedicated keys (via the wider alphabet) and whether drill generators
+ * (`generatePseudoWords`, `generatePlainWords`) include them in
+ * generated content. The intent matches what users mean by "include
+ * punctuation in the adaptive alphabet": drill me on commas as part of
+ * the curriculum, not "filter out every quote containing a comma".
+ */
 export function fitsAlphabet(entry: CorpusEntry, filter: ReadonlySet<string>): boolean {
-  for (const letter of entry.alphabet) {
-    if (!filter.has(letter)) return false;
+  for (const ch of entry.alphabet) {
+    if (LETTER.test(ch) && !filter.has(ch)) return false;
   }
   return true;
 }
