@@ -371,10 +371,14 @@ kbd {
   content: "";
   position: absolute;
   left: -1px;
-  /* Bar height tracks the glyph, not the (loose) line box — top/bottom
-   * are tuned for a 1.75 line-height; if --lh-loose changes, retune. */
+  /* Fixed one-line height — deliberately NOT `bottom`-anchored. A space
+   * char at a soft-wrap boundary fragments its inline box across two
+   * line boxes; Blink/WebKit then size this abs-pos containing block to
+   * the union of both fragments. A `bottom`-anchored bar would stretch
+   * the full two lines. A fixed height (one loose line box minus the
+   * 0.15em top/bottom insets) keeps the caret one line tall everywhere. */
   top: 0.15em;
-  bottom: 0.15em;
+  height: calc(var(--lh-loose) * 1em - 0.3em);
   width: 2px;
   background: var(--color-accent);
   pointer-events: none;
