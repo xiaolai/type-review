@@ -33,18 +33,21 @@ export function UserGuide(props: UserGuideProps): JSX.Element {
           mine / difficult / drills). No alphabet filter — anything goes.
         </p>
 
-        <h3>DET completion drills</h3>
+        <h3>DET Read and Complete drills</h3>
         <p>
-          The <a href="#/det">DET page</a> is a separate Read and Complete practice surface. Each
-          item shows a sentence and the first few letters of one target word. Fill the remaining
-          letters through the end of the word; one underline means one missing letter. You can type
-          just the missing tail or the full word, then press Enter to check. Target levels 105 / 115
-          / 125 adjust the clue length: higher targets reveal fewer letters.
+          DET means Duolingo English Test. The <a href="#/det">DET page</a> trains its Read and
+          Complete item type: each item shows a sentence and the first few letters of one target
+          word. Fill the remaining letters through the end of the word; one underline means one
+          missing letter. You can type just the missing tail or the full word, then press Enter to
+          check. The custom target score chooses a matching item bank; it does not simply hide more
+          of the same word.
         </p>
         <p>
           These drills do not feed the typing-speed stats model. They are for vocabulary,
           morphology, and grammar-in-context practice — useful for learners preparing for
-          prefix-only completion tasks.
+          prefix-only completion tasks. Missed items are saved into a local weak bank under the
+          app's own <code>type-review:</code> localStorage namespace and can be retried in weak
+          mode.
         </p>
 
         <h3>Words vs time</h3>

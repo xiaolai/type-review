@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Profile } from "../engine/session";
 import type { LoadResult, ProfileStore } from "../io";
 import { App } from "./App";
+import { DET_MISTAKES_STORAGE_KEY } from "./det-practice";
 
 /** A store whose load() rejects — simulates a corrupt or unavailable backend. */
 function failingStore(): ProfileStore {
@@ -62,6 +63,7 @@ describe("App integration", () => {
     // The typing-flow tests want the practice route active on mount.
     // Practice is also the new default route, so this is just being explicit.
     window.location.hash = "#/practice";
+    window.localStorage.removeItem(DET_MISTAKES_STORAGE_KEY);
   });
 
   afterEach(() => {
@@ -105,19 +107,84 @@ describe("App integration", () => {
     await vi.waitFor(() => {
       expect(host.querySelector(".det-page")).not.toBeNull();
     });
-    expect(host.textContent).toContain("One prompt. One answer.");
-    expect(host.textContent).toContain("target:");
-    expect(host.textContent).toContain("admi");
+    expect(host.querySelector<HTMLInputElement>('input[aria-label="target score"]')?.value).toBe(
+      "115",
+    );
+    expect(host.textContent).toContain("complete the word");
 
     const input = host.querySelector<HTMLInputElement>('input[aria-label="question 1 answer"]');
     expect(input).not.toBeNull();
     if (!input) return;
-    input.value = "ssion";
+    input.value = "wrong";
     input.dispatchEvent(new InputEvent("input", { bubbles: true }));
     input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
     await vi.waitFor(() => {
+      expect(host.textContent).toContain("错误");
+    });
+    expect(host.querySelector(".det-slot--incorrect")).not.toBeNull();
+    const missing = host.querySelector<HTMLElement>(".det-answer")?.dataset.missing;
+    expect(missing).toBeDefined();
+    if (!missing) return;
+    const savedMistakes = JSON.parse(
+      window.localStorage.getItem(DET_MISTAKES_STORAGE_KEY) ?? "[]",
+    ) as Array<{ misses: number; targetScore: number }>;
+    expect(savedMistakes[0]).toMatchObject({ misses: 1, targetScore: 115 });
+
+    const retry = Array.from(host.querySelectorAll("button")).find(
+      (button) => button.textContent?.trim() === "retry",
+    );
+    expect(retry).toBeDefined();
+    retry?.click();
+    await vi.waitFor(() => {
+      expect(host.textContent).not.toContain("错误");
+      expect(input.value).toBe("");
+    });
+    input.value = "wrong";
+    input.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    await vi.waitFor(() => {
+      expect(host.textContent).toContain("错误");
+    });
+
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    await vi.waitFor(() => {
+      expect(
+        host.querySelector<HTMLInputElement>('input[aria-label="question 2 answer"]'),
+      ).not.toBeNull();
+    });
+    const previous = Array.from(host.querySelectorAll("button")).find(
+      (button) => button.textContent?.trim() === "prev",
+    );
+    expect(previous).toBeDefined();
+    previous?.click();
+    await vi.waitFor(() => {
+      expect(
+        host.querySelector<HTMLInputElement>('input[aria-label="question 1 answer"]'),
+      ).not.toBeNull();
+      expect(host.textContent).toContain("错误");
+    });
+
+    const weakMode = Array.from(host.querySelectorAll("button")).find(
+      (button) => button.textContent?.trim() === "weak",
+    );
+    expect(weakMode).toBeDefined();
+    weakMode?.click();
+    await vi.waitFor(() => {
+      expect(host.textContent).toContain("missed");
+      expect(host.textContent).toContain("weak 1");
+    });
+    const weakInput = host.querySelector<HTMLInputElement>('input[aria-label="question 1 answer"]');
+    expect(weakInput).not.toBeNull();
+    if (!weakInput) return;
+    weakInput.value = missing;
+    weakInput.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    weakInput.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    await vi.waitFor(() => {
       expect(host.textContent).toContain("正确");
     });
+    expect(host.querySelector(".det-slot--incorrect")).toBeNull();
+    expect(host.querySelector(".det-slot--correct")).not.toBeNull();
+    expect(JSON.parse(window.localStorage.getItem(DET_MISTAKES_STORAGE_KEY) ?? "[]")).toEqual([]);
 
     const back = Array.from(host.querySelectorAll("button")).find(
       (button) => button.textContent?.trim() === "back to practice",

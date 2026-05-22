@@ -25,9 +25,11 @@ Most are public domain (Twain, Thoreau, Emerson, Marcus Aurelius, etc.);
 a handful are short fair-use snippets from modern authors. See the
 individual `quotes.json` and `code/*.json` entries for attribution.
 
-## DET-style completion drills
+## DET Read and Complete drills
 
 The practice items in `src/ui/det-practice-data.ts` are original
-example sentences written for Read and Complete style practice. They are
-not official Duolingo English Test items and are not copied from any test
-bank.
+example sentences written for Duolingo English Test (DET) Read and
+Complete practice. They are not official Duolingo English Test items and
+are not copied from any test bank. The app does not call a remote
+generator at runtime; the custom target score filters and presents the
+bundled practice bank locally.

@@ -759,28 +759,8 @@ kbd {
   width: 100%;
   max-width: 58rem;
   margin: 0 auto;
-  gap: var(--space-5);
-  padding-top: clamp(28px, 5vh, 64px);
-}
-.det-page__head {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  max-width: 42rem;
-}
-.det-page__title {
-  margin: 0;
-  color: var(--color-text);
-  font-family: var(--font-sans);
-  font-size: var(--fs-40);
-  font-weight: var(--fw-medium);
-  letter-spacing: var(--tracking-snug);
-  line-height: var(--lh-tight);
-}
-.det-page__copy {
-  margin: 0;
-  color: var(--color-muted);
-  max-width: 62ch;
+  gap: var(--space-3);
+  padding-top: clamp(16px, 4vh, 44px);
 }
 .det-panel {
   display: flex;
@@ -836,13 +816,47 @@ kbd {
 .det-actions .btn:hover {
   color: var(--color-text);
 }
+.det-target-score {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-dim);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-semibold);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.det-target-score input {
+  width: 4.5rem;
+  padding: 0;
+  border: 0;
+  border-bottom: var(--bw-1) solid var(--color-border-strong);
+  background: transparent;
+  color: var(--color-text);
+  font: inherit;
+  letter-spacing: 0;
+}
+.det-target-score small {
+  color: var(--color-muted);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-regular);
+  letter-spacing: 0;
+  text-transform: lowercase;
+}
+.det-intro {
+  margin: 0;
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: var(--fs-12);
+}
 .det-single {
   display: grid;
   grid-template-columns: 4.75rem minmax(0, 1fr);
   align-items: start;
   gap: var(--space-5);
   min-height: 22rem;
-  padding: clamp(24px, 6vh, 72px) 0 var(--space-6);
+  padding: clamp(16px, 5vh, 56px) 0 var(--space-6);
   border-bottom: var(--bw-1) solid var(--color-border);
 }
 .det-single .det-card__actions,
@@ -921,6 +935,18 @@ kbd {
 .det-blank:focus-within .det-slot {
   border-bottom-color: var(--color-accent);
   background: var(--color-accent-faint);
+}
+.det-slot--correct,
+.det-blank:focus-within .det-slot--correct {
+  color: var(--color-text);
+  border-bottom-color: var(--color-accent);
+  background: transparent;
+}
+.det-slot--incorrect,
+.det-blank:focus-within .det-slot--incorrect {
+  color: var(--color-error);
+  border-bottom-color: var(--color-error);
+  background: var(--color-error-faint);
 }
 .det-input {
   position: absolute;
@@ -1001,7 +1027,18 @@ kbd {
   flex-wrap: wrap;
   gap: var(--space-2);
 }
-
+.det-empty {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  min-height: 16rem;
+  padding: var(--space-6) 0;
+  border-bottom: var(--bw-1) solid var(--color-border);
+}
+.det-empty p {
+  margin: 0;
+  color: var(--color-muted);
+}
 @media (max-width: 640px) {
   .det-single {
     grid-template-columns: 1fr;
