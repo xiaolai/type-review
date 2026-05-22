@@ -37,6 +37,7 @@ export default defineConfig({
   // is verifying assets fetched from a different trust boundary than the HTML —
   // add `vite-plugin-sri` (or similar) only if/when assets move to a CDN.
   test: {
+    setupFiles: ["src/test/setup.ts"],
     // Only our own sources — never the cloned reference repos under reference-repo/.
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
     // Engine tests are pure and run in node. UI/io tests opt into jsdom

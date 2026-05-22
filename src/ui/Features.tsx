@@ -31,6 +31,11 @@ export function Features(props: FeaturesProps): JSX.Element {
             <b>Benchmark runs</b> — timed reads on real prose; no alphabet filter.
           </li>
           <li>
+            <b>DET completion drills</b> — prefix-only Read and Complete items for exam prep:
+            complete the hidden tail of a word, press Enter to check, and tune the visible clue by
+            target level.
+          </li>
+          <li>
             <b>Per-key + per-finger stats</b> — every keystroke feeds the same model regardless of
             mode.
           </li>

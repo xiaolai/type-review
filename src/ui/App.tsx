@@ -27,6 +27,7 @@ import { Footer } from "./components/Footer";
 import { PracticeStage } from "./components/PracticeStage";
 import { ResultsStage } from "./components/ResultsStage";
 import { Topbar } from "./components/Topbar";
+import { DetPractice } from "./DetPractice";
 import { Features } from "./Features";
 import { createCorpusChannel } from "./hooks/use-corpus-channel";
 import { createCrossTab } from "./hooks/use-cross-tab";
@@ -62,8 +63,9 @@ export interface AppProps {
  * App shell. Owns the async session lifecycle, then composes the rendered
  * tree from focused components, hooks, and the hash router.
  *
- * Routing: `#/practice` (default), `#/results`, `#/profile`, `#/library`,
- * `#/settings`, `#/about`, `#/features`, `#/guide`, `#/credits`.
+ * Routing: `#/practice` (default), `#/det`, `#/results`, `#/stats`,
+ * `#/library`, `#/settings`, `#/about`, `#/features`, `#/guide`,
+ * `#/credits`.
  *
  * The typing hot loop is kept out of reactive state: keystrokes mutate the
  * plain `Session` and the snapshot signal is refreshed via the
@@ -331,6 +333,10 @@ export function App(props: AppProps = {}): JSX.Element {
             />
           </Show>
 
+          <Show when={is("det")}>
+            <DetPractice onNavigate={(to) => router.navigate(to)} />
+          </Show>
+
           <Show when={is("results")}>
             <ResultsStage
               snap={snap()}
@@ -400,10 +406,12 @@ export function App(props: AppProps = {}): JSX.Element {
 
           <BottomNav
             activePractice={is("practice")}
+            activeDet={is("det")}
             activeStats={is("stats")}
             activeLibrary={is("library")}
             activeSettings={is("settings")}
             onPractice={() => router.navigate("practice")}
+            onDet={() => router.navigate("det")}
             onStats={() => router.navigate("stats")}
             onLibrary={() => router.navigate("library")}
             onSettings={() => router.navigate("settings")}

@@ -29,6 +29,15 @@ describe("createRouter", () => {
     });
   });
 
+  it("parses the DET practice route", () => {
+    window.location.hash = "#/det";
+    createRoot((dispose) => {
+      const router = createRouter();
+      expect(router.route().name).toBe("det");
+      dispose();
+    });
+  });
+
   it("falls back to practice for an unknown route", () => {
     window.location.hash = "#/unknown";
     createRoot((dispose) => {

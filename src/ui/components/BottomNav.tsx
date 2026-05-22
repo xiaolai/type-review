@@ -2,10 +2,12 @@ import type { JSX } from "solid-js";
 
 export interface BottomNavProps {
   activePractice: boolean;
+  activeDet: boolean;
   activeStats: boolean;
   activeLibrary: boolean;
   activeSettings: boolean;
   onPractice: () => void;
+  onDet: () => void;
   onStats: () => void;
   onLibrary: () => void;
   onSettings: () => void;
@@ -20,6 +22,7 @@ export function BottomNav(props: BottomNavProps): JSX.Element {
   return (
     <nav class="subnav" aria-label="primary navigation">
       <NavLink label="practice" active={props.activePractice} onClick={props.onPractice} />
+      <NavLink label="det" active={props.activeDet} onClick={props.onDet} />
       <NavLink label="stats" active={props.activeStats} onClick={props.onStats} />
       <NavLink label="library" active={props.activeLibrary} onClick={props.onLibrary} />
       <NavLink label="settings" active={props.activeSettings} onClick={props.onSettings} />

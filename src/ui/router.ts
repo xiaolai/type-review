@@ -8,6 +8,7 @@ import { createSignal, onCleanup } from "solid-js";
  */
 export type RouteName =
   | "practice"
+  | "det"
   | "results"
   | "stats"
   | "settings"
@@ -23,6 +24,7 @@ export type RouteName =
 
 const VALID_ROUTES: ReadonlySet<RouteName> = new Set([
   "practice",
+  "det",
   "results",
   "stats",
   "settings",
@@ -64,6 +66,7 @@ const ROUTE_ALIASES: Readonly<Record<string, RouteName>> = {
  */
 export const ROUTE_PARENT: Readonly<Record<RouteName, RouteName | null>> = {
   practice: null,
+  det: "practice",
   results: "practice",
   stats: "practice",
   library: "practice",

@@ -24,3 +24,10 @@ Text passages in `src/io/corpus/data/` carry per-entry `license` fields.
 Most are public domain (Twain, Thoreau, Emerson, Marcus Aurelius, etc.);
 a handful are short fair-use snippets from modern authors. See the
 individual `quotes.json` and `code/*.json` entries for attribution.
+
+## DET-style completion drills
+
+The practice items in `src/ui/det-practice-data.ts` are original
+example sentences written for Read and Complete style practice. They are
+not official Duolingo English Test items and are not copied from any test
+bank.

@@ -33,6 +33,20 @@ export function UserGuide(props: UserGuideProps): JSX.Element {
           mine / difficult / drills). No alphabet filter — anything goes.
         </p>
 
+        <h3>DET completion drills</h3>
+        <p>
+          The <a href="#/det">DET page</a> is a separate Read and Complete practice surface. Each
+          item shows a sentence and the first few letters of one target word. Fill the remaining
+          letters through the end of the word; one underline means one missing letter. You can type
+          just the missing tail or the full word, then press Enter to check. Target levels 105 / 115
+          / 125 adjust the clue length: higher targets reveal fewer letters.
+        </p>
+        <p>
+          These drills do not feed the typing-speed stats model. They are for vocabulary,
+          morphology, and grammar-in-context practice — useful for learners preparing for
+          prefix-only completion tasks.
+        </p>
+
         <h3>Words vs time</h3>
         <p>
           A benchmark run can end in two ways. <b>Words mode</b> (the default) finishes when you

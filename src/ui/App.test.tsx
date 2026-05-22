@@ -97,6 +97,38 @@ describe("App integration", () => {
     expect(toggle).toBeDefined();
   });
 
+  it("renders the DET completion page from the det route", async () => {
+    window.location.hash = "#/det";
+    const host = document.createElement("div");
+    document.body.appendChild(host);
+    dispose = render(() => <App />, host);
+    await vi.waitFor(() => {
+      expect(host.querySelector(".det-page")).not.toBeNull();
+    });
+    expect(host.textContent).toContain("One prompt. One answer.");
+    expect(host.textContent).toContain("target:");
+    expect(host.textContent).toContain("admi");
+
+    const input = host.querySelector<HTMLInputElement>('input[aria-label="question 1 answer"]');
+    expect(input).not.toBeNull();
+    if (!input) return;
+    input.value = "ssion";
+    input.dispatchEvent(new InputEvent("input", { bubbles: true }));
+    input.dispatchEvent(new KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+    await vi.waitFor(() => {
+      expect(host.textContent).toContain("正确");
+    });
+
+    const back = Array.from(host.querySelectorAll("button")).find(
+      (button) => button.textContent?.trim() === "back to practice",
+    );
+    expect(back).toBeDefined();
+    back?.click();
+    await vi.waitFor(() => {
+      expect(host.querySelector(".typing-area")).not.toBeNull();
+    });
+  });
+
   it("marks a correctly typed character as correct", async () => {
     const host = await mountApp();
     const text = host.querySelector(".typing-area")?.textContent ?? "";
