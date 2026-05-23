@@ -268,7 +268,7 @@ export function DetPractice(props: DetPracticeProps): JSX.Element {
 
       <Show when={introVisible() && checkedCount() === 0}>
         <p class="det-intro">
-          DET Read and Complete · complete the word, then press <kbd>Enter</kbd>
+          DET Fill in the Blanks · complete the word, then press <kbd>Enter</kbd>
         </p>
       </Show>
 

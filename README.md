@@ -8,7 +8,7 @@ A typing-practice web app that **adapts to you** and **stays out of your way** �
 
 - **Adaptive mode** — the app teaches you a small alphabet, then unlocks more letters as you get fast and accurate. Drilling weak keys without thinking about it.
 - **Benchmark mode** — runs on real prose, ended by either word count or a timer (configurable).
-- **DET Read and Complete drills** — a `#/det` practice page for original Duolingo English Test (DET) Read and Complete items: one prompt at a time, custom target-score banks, hidden answers until Enter, one underline per missing letter, and a rolling local weak bank for missed items.
+- **DET Fill in the Blanks drills** — a `#/det` practice page for original Duolingo English Test (DET) Fill in the Blanks items: one sentence prompt at a time, custom target-score banks, hidden answers until Enter, one underline per missing letter, and a rolling local weak bank for missed items.
 - **Real text to type** — a curated library of public-domain quotes and short passages, your own `.txt` / `.md` uploads, or paste a one-off paragraph via the *custom text* affordance.
 - **Per-key + per-finger stats** — a stats dashboard with per-source WPM trends, finger speed/error breakdown, daily-run streaks, and milestone tracking. Every run feeds the same model regardless of mode.
 - **An on-screen keyboard** (optional) — colour-coded by your per-key mastery, with live press-state. Mac and Windows layouts. QWERTY, Colemak, Dvorak keymaps.
@@ -38,7 +38,7 @@ See the in-app `#/about` page for the full privacy summary.
 - **Enter** on the results screen — start the next run.
 - **Esc** — never used by the app; reserved for your OS / browser.
 
-For a deeper walkthrough of modes, DET Read and Complete drills, settings, scoring, and the source picker, see [`#/guide`](https://type.review/#/guide) (or the catalog of everything at [`#/features`](https://type.review/#/features)).
+For a deeper walkthrough of modes, DET Fill in the Blanks drills, settings, scoring, and the source picker, see [`#/guide`](https://type.review/#/guide) (or the catalog of everything at [`#/features`](https://type.review/#/features)).
 
 ## For contributors
 

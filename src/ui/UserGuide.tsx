@@ -33,10 +33,10 @@ export function UserGuide(props: UserGuideProps): JSX.Element {
           mine / difficult / drills). No alphabet filter — anything goes.
         </p>
 
-        <h3>DET Read and Complete drills</h3>
+        <h3>DET Fill in the Blanks drills</h3>
         <p>
-          DET means Duolingo English Test. The <a href="#/det">DET page</a> trains its Read and
-          Complete item type: each item shows a sentence and the first few letters of one target
+          DET means Duolingo English Test. The <a href="#/det">DET page</a> trains its Fill in the
+          Blanks item type: each item shows one sentence and the first few letters of one target
           word. Fill the remaining letters through the end of the word; one underline means one
           missing letter. You can type just the missing tail or the full word, then press Enter to
           check. The custom target score chooses a matching item bank; it does not simply hide more

@@ -31,9 +31,9 @@ export function Features(props: FeaturesProps): JSX.Element {
             <b>Benchmark runs</b> — timed reads on real prose; no alphabet filter.
           </li>
           <li>
-            <b>DET Read and Complete drills</b> — Duolingo English Test sentence-completion
-            practice: complete the hidden tail of a word, press Enter to check, set a custom target
-            score, and retry missed items from a local weak bank.
+            <b>DET Fill in the Blanks drills</b> — Duolingo English Test single-sentence word
+            completion practice: complete the hidden tail of a word, press Enter to check, set a
+            custom target score, and retry missed items from a local weak bank.
           </li>
           <li>
             <b>Per-key + per-finger stats</b> — every keystroke feeds the same model regardless of
