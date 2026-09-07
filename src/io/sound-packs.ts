@@ -65,6 +65,12 @@ export interface SynthPackData {
   label: string;
   /** Per-category configs. `default` is required; others fall back to it. */
   sounds: Partial<Record<SoundCategory, SynthConfig>> & { default: SynthConfig };
+  /**
+   * How this pack's keys sound coming back up, or absent when they do not.
+   * A `null` release is how a pack says its keys return silently, which is
+   * the truth for a typewriter and a decision for everything else.
+   */
+  release?: ReleaseShape;
 }
 
 export interface SpritePackData {
@@ -84,6 +90,45 @@ export interface SpritePackData {
    * within the source clip gives natural variation across keystrokes.
    */
   sliceMs: Partial<Record<SoundCategory, number>> & { default: number };
+}
+
+/**
+ * Which half of a keystroke is sounding.
+ *
+ * A real key makes two sounds, and every pack here used to describe only the
+ * first. The press is the finger driving the key onto the plate; the release
+ * is the spring pushing it back into the top housing — a lighter part struck
+ * by a weaker force.
+ */
+export type Stroke = "press" | "release";
+
+/**
+ * How a pack's release sounds, stated as what the press is *not*.
+ *
+ * Derived rather than written out, and that is a claim about the physics
+ * rather than a shortcut. The release is the same mechanism running backwards
+ * — same materials, same switch, so the same filter over the same noise. What
+ * changes is only how hard, how long, how bright, and whether the body is
+ * there at all. Four numbers per pack says exactly that; twenty-five more
+ * voice literals would say it five times over and let them drift apart.
+ */
+export interface ReleaseShape {
+  /** Loudness against the press. The spring is doing this, not a finger. */
+  gain: number;
+  /** Length against the press. */
+  duration: number;
+  /**
+   * Centre frequency against the press. Higher: the upstroke arrives at the
+   * top housing, which is thinner than the plate the downstroke hits.
+   */
+  brightness: number;
+  /**
+   * How much of the oscillator survives, and the one field that is not the
+   * same story in every pack. For most it is the bottom-out body, which
+   * simply does not happen on the way up — zero. For CLICKY it is the spring,
+   * which does ring again on release, quieter.
+   */
+  resonance: number;
 }
 
 export type KeySoundPackData = SynthPackData | SpritePackData;
@@ -117,6 +162,9 @@ const MECHVIBE: SynthPackData = {
       osc: { type: "sine", freq: 60, durationMs: 95, peak: 0.22 },
     },
   },
+  // A bare board: plastic arriving at plastic, with none of the bottom-out
+  // that gives the press its weight.
+  release: { gain: 0.34, duration: 0.55, brightness: 1.3, resonance: 0 },
 };
 
 /**
@@ -167,6 +215,10 @@ const SOFT: SynthPackData = {
       noise: { durationMs: 50, filter: "lowpass", freq: 900, q: 1, peak: 0.32 },
     },
   },
+  // Proportionally the loudest release of any pack, which is not a mistake:
+  // there is less press here for it to hide behind, and a dampened board is
+  // exactly where you notice the key coming back.
+  release: { gain: 0.42, duration: 0.6, brightness: 1.25, resonance: 0 },
 };
 
 /**
@@ -210,6 +262,10 @@ const THOCK: SynthPackData = {
       osc: { type: "sine", freq: 45, durationMs: 130, peak: 0.32 },
     },
   },
+  // The quietest and the brightest, both for the same reason: all of this
+  // pack's weight is in a bottom-out that does not happen on the way up.
+  // A little case ring survives, and no more.
+  release: { gain: 0.3, duration: 0.5, brightness: 1.5, resonance: 0.12 },
 };
 
 /**
@@ -250,6 +306,10 @@ const CLICKY: SynthPackData = {
       osc: { type: "sine", freq: 1150, durationMs: 65, peak: 0.09 },
     },
   },
+  // The one pack whose release is a real second click. A buckling spring
+  // unbuckles on the way up and rings again, which is why this keeps far
+  // more of its oscillator than anything else here.
+  release: { gain: 0.45, duration: 0.6, brightness: 1.15, resonance: 0.45 },
 };
 
 /**
@@ -290,6 +350,9 @@ const LAPTOP: SynthPackData = {
       osc: { type: "sine", freq: 105, durationMs: 48, peak: 0.1 },
     },
   },
+  // Barely there, and brief even by this pack's standards. A scissor key
+  // returns under a light spring with nowhere to resonate.
+  release: { gain: 0.38, duration: 0.55, brightness: 1.2, resonance: 0 },
 };
 
 const OFF: SynthPackData = {
@@ -350,6 +413,33 @@ function destinationWithPan(ctx: AudioContext, dest: AudioNode, pan: number): Au
   panner.pan.setValueAtTime(Math.max(-1, Math.min(1, pan)), ctx.currentTime);
   panner.connect(dest);
   return panner;
+}
+
+/**
+ * The release voice for a press voice, under a pack's shape.
+ *
+ * The oscillator is dropped entirely at zero resonance rather than scaled to
+ * silence: a body that is not there should cost no audio node at all. Its
+ * pitch never changes — the pitch of a body is the case, and a case does not
+ * change pitch because the key is going the other way.
+ */
+function derivedRelease(config: SynthConfig, shape: ReleaseShape): SynthConfig {
+  return {
+    noise: config.noise && {
+      ...config.noise,
+      durationMs: config.noise.durationMs * shape.duration,
+      freq: config.noise.freq * shape.brightness,
+      peak: config.noise.peak * shape.gain,
+    },
+    osc:
+      shape.resonance > 0 && config.osc
+        ? {
+            ...config.osc,
+            durationMs: config.osc.durationMs * shape.duration,
+            peak: config.osc.peak * shape.gain * shape.resonance,
+          }
+        : undefined,
+  };
 }
 
 function playNoiseBurst(ctx: AudioContext, dest: AudioNode, cfg: NoiseConfig, pan: number): void {
@@ -488,7 +578,7 @@ export interface KeySoundPack {
    * stereo position in [-1, +1] (-1 = full left, 0 = centre, +1 = full
    * right). Callers source it from `panForCode(event.code)` in key-sounds.
    */
-  play(category: SoundCategory, pan?: number): void;
+  play(category: SoundCategory, pan?: number, stroke?: Stroke): void;
 }
 
 /**
@@ -520,8 +610,13 @@ function createSynthPack(
   return {
     name: data.name,
     label: data.label,
-    play(category, pan = 0) {
-      const config = data.sounds[category] ?? data.sounds.default;
+    play(category, pan = 0, stroke = "press") {
+      const pressed = data.sounds[category] ?? data.sounds.default;
+      // A pack with no shape has no release, so asking for one is silence
+      // rather than a special case the caller has to know about.
+      if (stroke === "release" && !data.release) return;
+      const config =
+        stroke === "release" && data.release ? derivedRelease(pressed, data.release) : pressed;
       if (config.noise) playNoiseBurst(ctx, destination, config.noise, pan);
       if (config.osc) playOscBurst(ctx, destination, config.osc, pan);
     },
@@ -592,7 +687,12 @@ function createSpritePack(
   return {
     name: data.name,
     label: data.label,
-    play(category, pan = 0) {
+    play(category, pan = 0, stroke = "press") {
+      // Recorded packs have no release, and the typewriter is the reason that
+      // is the right default rather than a gap: a typebar returns almost
+      // silently, and the strike is the event. A release slice would be a
+      // quieter copy of a sound that does not happen.
+      if (stroke === "release") return;
       if (state.buffer === null) {
         // Buffer still loading — queue the most-recent category so the
         // first audible keystroke arrives as soon as we can produce it.

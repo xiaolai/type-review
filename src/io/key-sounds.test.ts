@@ -218,6 +218,10 @@ function dispatch(key: string, init: KeyboardEventInit = {}): void {
   window.dispatchEvent(new KeyboardEvent("keydown", { key, cancelable: true, ...init }));
 }
 
+function release(key: string, init: KeyboardEventInit = {}): void {
+  window.dispatchEvent(new KeyboardEvent("keyup", { key, cancelable: true, ...init }));
+}
+
 function setup(initialPack = "mechvibe"): { ctxFactory: ReturnType<typeof makeFakeAudioContext> } {
   bus = createKeyEventBus();
   const factory = makeFakeAudioContext();
@@ -283,6 +287,37 @@ describe("attachKeySounds", () => {
     }
     // mechvibe's tab/enter/space have a noise + osc; esc has noise only.
     expect(createSourceSpy.mock.calls.length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("sounds the key coming back up", () => {
+    const { ctxFactory } = setup("mechvibe");
+    dispatch("a"); // the press also creates the context
+    const createSourceSpy = vi.spyOn(ctxFactory.ctx, "createBufferSource");
+    release("a");
+    expect(createSourceSpy).toHaveBeenCalled();
+  });
+
+  it("does not sound a release for a pack that has none", () => {
+    // The typewriter is a recording, and a typebar returns almost silently —
+    // the strike is the event. Asserted so that giving a sprite pack a release
+    // has to be a decision rather than a side effect.
+    const { ctxFactory } = setup("typewriter");
+    dispatch("a");
+    const createSourceSpy = vi.spyOn(ctxFactory.ctx, "createBufferSource");
+    release("a");
+    expect(createSourceSpy).not.toHaveBeenCalled();
+  });
+
+  it("does not reach for an audio device on a release alone", () => {
+    // A release cannot be the first key event of a session, so the context
+    // already exists if it ever will. Creating one here would be asking for
+    // the audio device outside the user gesture browsers grant it for.
+    bus = createKeyEventBus();
+    const factory = makeFakeAudioContext();
+    const createCtx = vi.fn(() => factory.ctx as unknown as AudioContext);
+    player = attachKeySounds(bus, { initialPack: "mechvibe", createAudioContext: createCtx });
+    release("a");
+    expect(createCtx).not.toHaveBeenCalled();
   });
 
   it("setPack('off') stops producing sound", () => {

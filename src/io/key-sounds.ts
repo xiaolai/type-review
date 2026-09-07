@@ -259,7 +259,22 @@ export function attachKeySounds(bus: KeyEventBus, options: KeySoundsOptions = {}
     pack?.play(category, pan);
   };
 
-  const unsubscribe = bus.onKeyDown(handleKeyDown);
+  const handleKeyUp = (event: KeyboardEvent): void => {
+    // No `repeat` to check: a held key repeats its keydown and comes up
+    // exactly once, so the release is one sound however long it was held.
+    if (packName === "off") return;
+    const category = categorizeKey(event.key);
+    if (category === null) return;
+    // No `ensureContext` here. A release cannot be the first key event of a
+    // session, so the context already exists if it ever will — and creating
+    // an AudioContext on a keyup would be reaching for the audio device
+    // outside the user gesture browsers grant it for.
+    if (ctx === null) return;
+    pack?.play(category, panForCode(event.code), "release");
+  };
+
+  const unsubscribeDown = bus.onKeyDown(handleKeyDown);
+  const unsubscribeUp = bus.onKeyUp(handleKeyUp);
 
   return {
     setPack(name) {
@@ -275,7 +290,8 @@ export function attachKeySounds(bus: KeyEventBus, options: KeySoundsOptions = {}
       }
     },
     detach() {
-      unsubscribe();
+      unsubscribeDown();
+      unsubscribeUp();
       master?.disconnect();
       master = null;
       pack = null;
