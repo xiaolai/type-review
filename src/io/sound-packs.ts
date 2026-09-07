@@ -169,6 +169,129 @@ const SOFT: SynthPackData = {
   },
 };
 
+/**
+ * A heavy board on foam: the sound modern keyboards are built for.
+ *
+ * The gap MECHVIBE and SOFT leave between them. MECHVIBE is a bare board —
+ * a bright click over a small body. SOFT is muted with no body at all.
+ * Neither is what a gasket-mounted case full of foam does, which is to
+ * swallow the click and leave the *body*: a low knock with the top end taken
+ * off it. So the click sits at 1.1 kHz rather than 3, and the sine under it
+ * is louder and longer than any other pack's. Being deep is not the same as
+ * being quiet, and that distinction is the whole pack.
+ */
+const THOCK: SynthPackData = {
+  kind: "synth",
+  name: "thock",
+  label: "thock",
+  sounds: {
+    default: {
+      noise: { durationMs: 55, filter: "bandpass", freq: 1100, q: 1.2, peak: 0.38 },
+      osc: { type: "sine", freq: 60, durationMs: 95, peak: 0.26 },
+    },
+    tab: {
+      noise: { durationMs: 62, filter: "bandpass", freq: 1000, q: 1.2, peak: 0.38 },
+      osc: { type: "sine", freq: 56, durationMs: 100, peak: 0.26 },
+    },
+    enter: {
+      noise: { durationMs: 75, filter: "bandpass", freq: 900, q: 1.3, peak: 0.44 },
+      osc: { type: "sine", freq: 50, durationMs: 120, peak: 0.3 },
+    },
+    esc: {
+      // Still the lightest key, but it keeps a body here — a bodyless tick
+      // would sound like a different keyboard, which is what MECHVIBE does
+      // on purpose and this one should not.
+      noise: { durationMs: 42, filter: "bandpass", freq: 1400, q: 1.2, peak: 0.3 },
+      osc: { type: "sine", freq: 72, durationMs: 60, peak: 0.18 },
+    },
+    space: {
+      // The deepest thing the pack makes: a long bar on a foamed plate.
+      noise: { durationMs: 80, filter: "bandpass", freq: 820, q: 1.0, peak: 0.44 },
+      osc: { type: "sine", freq: 45, durationMs: 130, peak: 0.32 },
+    },
+  },
+};
+
+/**
+ * A clicky switch, and the ring it leaves behind.
+ *
+ * The defining sound of a buckling spring or a blue switch is not the click
+ * on its own — it is the metallic ping after it, a real spring resonating in
+ * a real barrel. So the oscillator here is not a body at 60 Hz like every
+ * other pack's; it is the ring, high and quiet. One oscillator per voice is
+ * the model's limit, so this pack spends it on the ping and has no low end
+ * at all. That is the correct trade: a clicky board with no ping is just a
+ * bright MECHVIBE, and the ping is the thing anyone would recognise.
+ */
+const CLICKY: SynthPackData = {
+  kind: "synth",
+  name: "clicky",
+  label: "clicky",
+  sounds: {
+    default: {
+      noise: { durationMs: 38, filter: "bandpass", freq: 4200, q: 2.6, peak: 0.4 },
+      osc: { type: "sine", freq: 1800, durationMs: 55, peak: 0.09 },
+    },
+    tab: {
+      noise: { durationMs: 44, filter: "bandpass", freq: 3900, q: 2.6, peak: 0.42 },
+      osc: { type: "sine", freq: 1650, durationMs: 60, peak: 0.1 },
+    },
+    enter: {
+      noise: { durationMs: 52, filter: "bandpass", freq: 3600, q: 2.8, peak: 0.46 },
+      osc: { type: "sine", freq: 1450, durationMs: 70, peak: 0.11 },
+    },
+    esc: {
+      noise: { durationMs: 28, filter: "bandpass", freq: 5000, q: 2.4, peak: 0.34 },
+      osc: { type: "sine", freq: 2200, durationMs: 34, peak: 0.07 },
+    },
+    space: {
+      // A stabilised bar rings lower and wider than a single switch.
+      noise: { durationMs: 55, filter: "bandpass", freq: 3000, q: 1.8, peak: 0.44 },
+      osc: { type: "sine", freq: 1150, durationMs: 65, peak: 0.09 },
+    },
+  },
+};
+
+/**
+ * A scissor keyboard: 1 mm of travel onto an aluminium deck.
+ *
+ * Short, bright and shallow. The distinction from SOFT is worth stating,
+ * because both are quiet packs: SOFT is muffled — a lowpass, everything above
+ * 1.2 kHz gone. This is the opposite. It is almost *all* top end, just very
+ * brief, with a faint low tap where the key bottoms out on the deck. Every
+ * duration is under half of MECHVIBE's; a scissor key that rang for fifty
+ * milliseconds would be a different machine.
+ */
+const LAPTOP: SynthPackData = {
+  kind: "synth",
+  name: "laptop",
+  label: "laptop",
+  sounds: {
+    default: {
+      noise: { durationMs: 24, filter: "bandpass", freq: 4800, q: 1.3, peak: 0.32 },
+      osc: { type: "sine", freq: 140, durationMs: 28, peak: 0.07 },
+    },
+    tab: {
+      noise: { durationMs: 28, filter: "bandpass", freq: 4500, q: 1.3, peak: 0.32 },
+      osc: { type: "sine", freq: 130, durationMs: 32, peak: 0.07 },
+    },
+    enter: {
+      noise: { durationMs: 34, filter: "bandpass", freq: 3900, q: 1.2, peak: 0.35 },
+      osc: { type: "sine", freq: 115, durationMs: 40, peak: 0.09 },
+    },
+    esc: {
+      noise: { durationMs: 18, filter: "bandpass", freq: 5600, q: 1.3, peak: 0.26 },
+      osc: { type: "sine", freq: 165, durationMs: 20, peak: 0.05 },
+    },
+    space: {
+      // The one hollow key on a laptop, because the bar spans the
+      // unsupported middle of the deck.
+      noise: { durationMs: 40, filter: "bandpass", freq: 2900, q: 1.0, peak: 0.36 },
+      osc: { type: "sine", freq: 105, durationMs: 48, peak: 0.1 },
+    },
+  },
+};
+
 const OFF: SynthPackData = {
   kind: "synth",
   name: "off",
@@ -177,7 +300,19 @@ const OFF: SynthPackData = {
   sounds: { default: {} },
 };
 
-export const KEY_SOUND_PACKS: readonly KeySoundPackData[] = [OFF, MECHVIBE, TYPEWRITER, SOFT];
+// New packs are appended rather than filed among the old ones: the order is
+// what the picker shows, and rearranging it moves entries under people who had
+// learned where they were. The macOS port offers the same list in the same
+// order — see Sources/TypeReviewKit/KeySounds.swift there.
+export const KEY_SOUND_PACKS: readonly KeySoundPackData[] = [
+  OFF,
+  MECHVIBE,
+  TYPEWRITER,
+  SOFT,
+  THOCK,
+  CLICKY,
+  LAPTOP,
+];
 
 export function findPack(name: string): KeySoundPackData | null {
   return KEY_SOUND_PACKS.find((p) => p.name === name) ?? null;
