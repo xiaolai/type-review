@@ -150,10 +150,13 @@ export function UserGuide(props: UserGuideProps): JSX.Element {
 
         <h3>Keystroke sounds</h3>
         <p>
-          Four packs: <b>off</b>, <b>mechvibe</b> (synthesised), <b>typewriter</b> (real mechanical
-          typewriter samples), and <b>soft</b>. The synthesised packs are generated on-device with
-          the Web Audio API. Modifier keys (Shift, Ctrl, Alt, Cmd) are silent; Tab / Enter / Esc /
-          Space each get their own click.
+          Seven packs: <b>off</b>, <b>mechvibe</b>, <b>thock</b> (deep and dampened), <b>clicky</b>{" "}
+          (with the ring a buckling spring leaves behind), <b>laptop</b> (short and bright),{" "}
+          <b>soft</b>, and <b>typewriter</b> (real mechanical typewriter samples). All but
+          typewriter are generated on-device with the Web Audio API, and all but typewriter sound
+          the key coming back up as well as going down — a real key makes two sounds, and the second
+          one is quieter, shorter and brighter. Modifier keys (Shift, Ctrl, Alt, Cmd) are silent;
+          Tab / Enter / Esc / Space each get their own click.
         </p>
 
         <h3>Whitespace markers</h3>

@@ -18,6 +18,22 @@
 
 ---
 
+## Acknowledgement
+
+### Mechvibes — https://github.com/hainguyents13/mechvibes (MIT)
+
+Where the idea came from, and where the `mechvibe` pack's name came from.
+Mechvibes is a keyboard sound simulator with swappable packs; this app
+borrowed that shape and nothing else. Its packs are recordings mapped per
+key, with a separate release file per key (`soundup` and the `-up`
+entries in its `config.json`); every synthesised pack here is generated
+from a noise burst and an oscillator described in `src/io/sound-packs.ts`,
+so no Mechvibes audio and no Mechvibes code is present. Nothing is
+legally owed — this is a courtesy, and an accurate one is worth more than
+a generous one.
+
+---
+
 ## Bundled corpus
 
 Text passages in `src/io/corpus/data/` carry per-entry `license` fields.

@@ -24,15 +24,24 @@ export function Credits(props: CreditsProps): JSX.Element {
         <h3>Audio</h3>
         <ul>
           <li>
-            <b>typewriter sound pack</b> — "Typewriter #1" from{" "}
-            <a href="https://bigsoundbank.com/detail-1065-typewriter.html" rel="noopener">
+            <b>typewriter sound pack</b> — "Typewriter #2" from{" "}
+            <a href="https://bigsoundbank.com/typewriter-2-s2835.html" rel="noopener">
               BigSoundBank
             </a>
-            . Public domain (CC0); credited as a courtesy.
+            , recorded by Joseph SARDIN. A Hermes Precisa 305, sliced at its own keystrokes. Public
+            domain (CC0); credited as a courtesy.
           </li>
           <li>
-            <b>mechvibe and soft packs</b> — generated on-device with the Web Audio API. No assets,
-            no downloads.
+            <b>mechvibe, soft, thock, clicky and laptop packs</b> — generated on-device with the Web
+            Audio API. No assets, no downloads.
+          </li>
+          <li>
+            <a href="https://github.com/hainguyents13/mechvibes" rel="noopener">
+              <b>Mechvibes</b>
+            </a>{" "}
+            — the idea that a keyboard can wear a different sound, and the name of the pack below
+            off. Its packs are recordings; every synthesised pack here is built from scratch, so
+            none of its audio or code is present. MIT.
           </li>
         </ul>
 
