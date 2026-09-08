@@ -13,7 +13,15 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
  *
  * Safe to delete once telemetry confirms no live SW remains in the
  * wild (months of analytics with zero registrations).
+ *
+ * Both cases `await import("./main")`, which transforms and boots the
+ * ENTIRE app module graph — Solid UI, CSS, bundled corpus JSON — to probe
+ * one 25-line block. Measured at 2.7-5.7 s depending on machine load,
+ * which straddles Vitest's 5 s default and made this the suite's one flaky
+ * test. The budget below bounds module transform, not app behaviour, so it
+ * is sized for a loaded CI runner; a genuine hang still fails it.
  */
+const BOOT_TIMEOUT_MS = 30_000;
 describe("main.tsx PWA cleanup", () => {
   let unregisterCalls: number;
   let deletedCacheNames: string[];
@@ -58,30 +66,38 @@ describe("main.tsx PWA cleanup", () => {
     document.body.innerHTML = "";
   });
 
-  it("unregisters every existing SW and clears every cache on boot", async () => {
-    // Importing main.tsx executes the top-level cleanup IIFE.
-    await import("./main");
-    // Let microtasks drain so the async cleanup completes.
-    await new Promise<void>((r) => setTimeout(r, 20));
-    expect(unregisterCalls).toBe(2);
-    expect(deletedCacheNames).toEqual(["type-review-v1", "stale-cache"]);
-  });
+  it(
+    "unregisters every existing SW and clears every cache on boot",
+    async () => {
+      // Importing main.tsx executes the top-level cleanup IIFE.
+      await import("./main");
+      // Let microtasks drain so the async cleanup completes.
+      await new Promise<void>((r) => setTimeout(r, 20));
+      expect(unregisterCalls).toBe(2);
+      expect(deletedCacheNames).toEqual(["type-review-v1", "stale-cache"]);
+    },
+    BOOT_TIMEOUT_MS,
+  );
 
-  it("swallows getRegistrations rejection without crashing the app", async () => {
-    // Replace the success-path stub with a rejecting one and verify
-    // the IIFE catches it (the catch logs a warning, not an exception).
-    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
-    vi.stubGlobal("navigator", {
-      ...globalThis.navigator,
-      serviceWorker: {
-        getRegistrations: vi.fn(() => Promise.reject(new Error("ITP private mode"))),
-      },
-    });
-    await import("./main");
-    await new Promise<void>((r) => setTimeout(r, 20));
-    expect(warn).toHaveBeenCalled();
-    const messages = warn.mock.calls.map((args) => String(args[0] ?? ""));
-    expect(messages.some((m) => m.includes("service worker cleanup failed"))).toBe(true);
-    warn.mockRestore();
-  });
+  it(
+    "swallows getRegistrations rejection without crashing the app",
+    async () => {
+      // Replace the success-path stub with a rejecting one and verify
+      // the IIFE catches it (the catch logs a warning, not an exception).
+      const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+      vi.stubGlobal("navigator", {
+        ...globalThis.navigator,
+        serviceWorker: {
+          getRegistrations: vi.fn(() => Promise.reject(new Error("ITP private mode"))),
+        },
+      });
+      await import("./main");
+      await new Promise<void>((r) => setTimeout(r, 20));
+      expect(warn).toHaveBeenCalled();
+      const messages = warn.mock.calls.map((args) => String(args[0] ?? ""));
+      expect(messages.some((m) => m.includes("service worker cleanup failed"))).toBe(true);
+      warn.mockRestore();
+    },
+    BOOT_TIMEOUT_MS,
+  );
 });
