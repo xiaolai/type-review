@@ -76,6 +76,12 @@ export function MacApp(props: MacAppProps): JSX.Element {
             hide its Dock icon, and be summoned from any app with a shortcut.
           </li>
           <li>
+            <b>It can count what you type everywhere.</b> Off by default. Switch it on and the
+            Statistics window draws a calendar of how much you typed each day, from a daily total
+            kept on your Mac — a number per day, nothing about which keys or which app, and never
+            counted in a password field.
+          </li>
+          <li>
             <b>Your data is a file.</b> One JSON profile you can reveal in Finder, export, and
             import back.
           </li>
@@ -111,8 +117,10 @@ export function MacApp(props: MacAppProps): JSX.Element {
           contains no HTTP client. No account, no server, no telemetry. The optional system-wide
           keyboard sound reads which physical key moved and nothing else: it cannot tell an{" "}
           <code>a</code> from a <code>q</code>, it switches itself off entirely while a password
-          manager is in front, and every secure text field in macOS silences it. Full detail in the{" "}
-          <a href="/privacy/">privacy policy</a>.
+          manager is in front, and every secure text field in macOS silences it. The optional
+          keystroke count, off by default and a separate switch, keeps one number per day on your
+          own Mac under those same exclusions — not which keys, not when, not in which app — and you
+          can erase it in one click. Full detail in the <a href="/privacy/">privacy policy</a>.
         </p>
 
         <h3>Source</h3>

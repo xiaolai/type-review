@@ -41,6 +41,11 @@ words per minute, accuracy, and per-key timings for each run, plus your
 settings. Nothing in it identifies you. You can reveal it in Finder from
 Settings → Data, export it, import it, or delete it — deleting it erases every
 statistic the app has.</p>
+<p>If you switch on <em>Count keystrokes</em>, a second file beside it holds one
+number per day and nothing else. It is a separate file so that exporting or
+sharing your practice history does not carry it with them, and so that erasing
+one does not mean erasing the other. See <a href="#counting">Counting
+keystrokes</a> below.</p>
 
 <h2>What the app sends</h2>
 <p>Nothing. TYPE makes no network requests of any kind. It contains no analytics,
@@ -64,9 +69,31 @@ app never asks on launch.</p>
       the app at all.</li>
   <li>Every secure text field in macOS silences it, including fields in
       applications nobody thought to enumerate.</li>
-  <li>Nothing is stored, buffered, or transmitted. The only output is one audio
-      buffer per keystroke.</li>
+  <li>The sound stores nothing. It buffers nothing, and transmits nothing: the
+      only output is one audio buffer per keystroke. If you also switch on
+      <em>Count keystrokes</em>, that feature — and only that feature — writes
+      a daily total to disk, described below.</li>
 </ul>
+
+<h2 id="counting">Counting keystrokes</h2>
+<p>TYPE can keep a daily count of keys you press in any application, so the
+Statistics window can show a calendar of how much you have typed. This is off
+by default, it is a separate switch from the keyboard sound, and switching it
+on asks for the same Input Monitoring permission.</p>
+<p>What is written down is one integer per day: how many keys were pressed. Not
+which keys, not when during the day, not in which application, and not what you
+were writing. The app cannot reconstruct any of those from what it keeps,
+because it never had them — the count is incremented and the event is
+discarded.</p>
+<p>It is subject to exactly the same exclusions as the sound. Nothing is counted
+while a password manager is frontmost, because the event tap is uninstalled
+rather than muted, and nothing is counted in any secure text field. The number
+is therefore a count of keys the app was allowed to see, which is smaller than
+the number of keys you actually pressed.</p>
+<p>The file stays on your Mac and is sent nowhere — the app makes no network
+requests at all. Roughly the last year of days is kept and older ones are
+dropped. You can delete the whole thing at any time from Settings → Sound →
+Erase keystroke counts, which leaves your practice history untouched.</p>
 
 <h2>Speaking words aloud</h2>
 <p>TYPE can read a word aloud once you have typed it correctly. This uses
@@ -74,9 +101,12 @@ macOS's built-in speech synthesis, on your own device, and involves no network.
 It is off by default, and it only ever speaks words from the passage on screen.</p>
 
 <h2>Children</h2>
-<p>TYPE is suitable for children learning to read and type. It collects no data
-from anyone, of any age, and contains no advertising, no in-app purchases, and
-no user-generated content.</p>
+<p>TYPE is suitable for children learning to read and type. It sends no data
+anywhere, about anyone, of any age — not to us and not to a third party — and
+it contains no advertising, no in-app purchases, and no user-generated content.
+The two things it records, practice history and the optional keystroke count,
+are files on your own Mac that you can read and delete; the second is off
+unless somebody switches it on.</p>
 
 <h2>This website</h2>
 <p>type.review runs the same typing practice in a browser. Your statistics are
