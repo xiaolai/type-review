@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — TYPE</title>
+<meta name="description" content="TYPE collects no personal data. Practice statistics stay on your own machine.">
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    font: 16px/1.65 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    max-width: 42rem; margin: 0 auto; padding: 3rem 1.25rem 6rem;
+    color: #1c1c1e; background: #fff;
+  }
+  @media (prefers-color-scheme: dark) { body { color: #e8e8ed; background: #111113; } }
+  h1 { font-size: 1.9rem; line-height: 1.2; margin: 0 0 .25rem; letter-spacing: -.02em; }
+  h2 { font-size: 1.15rem; margin: 2.5rem 0 .6rem; letter-spacing: -.01em; }
+  .updated { color: #6b6b70; font-size: .9rem; margin: 0 0 2rem; }
+  .lede { font-size: 1.15rem; }
+  ul { padding-left: 1.2rem; }
+  li { margin: .35rem 0; }
+  code { font: .9em ui-monospace, SFMono-Regular, Menlo, monospace;
+         background: rgba(127,127,127,.14); padding: .1em .35em; border-radius: 4px; }
+  a { color: inherit; text-underline-offset: 2px; }
+  footer { margin-top: 3.5rem; padding-top: 1.25rem; font-size: .9rem; color: #6b6b70;
+           border-top: 1px solid rgba(127,127,127,.25); }
+</style>
+</head>
+<body>
+
+<h1>Privacy Policy</h1>
+<p class="updated">TYPE for macOS and type.review · Last updated 8 September 2026</p>
+
+<p class="lede"><strong>TYPE collects nothing.</strong> There is no account, no
+sign-in, and no server. Everything the app records about your typing stays on
+your own machine, in a file you can open, move, or delete.</p>
+
+<h2>What the app stores</h2>
+<p>One JSON file in the app's own container, holding your practice history:
+words per minute, accuracy, and per-key timings for each run, plus your
+settings. Nothing in it identifies you. You can reveal it in Finder from
+Settings → Data, export it, import it, or delete it — deleting it erases every
+statistic the app has.</p>
+
+<h2>What the app sends</h2>
+<p>Nothing. TYPE makes no network requests of any kind. It contains no analytics,
+no crash reporting, and no advertising. This is a property of the build rather
+than a promise: the application links no networking framework, and its source
+contains no HTTP client. The only address anywhere in the app is the link to
+this website, which opens in your browser when you click it.</p>
+
+<h2>The optional keyboard sound</h2>
+<p>TYPE can play a keyboard sound for keys pressed in other applications, so a
+quiet keyboard can be given the sound of a mechanical one. This is off by
+default. Switching it on asks macOS for Input Monitoring permission, and the
+app never asks on launch.</p>
+<p>While it is on, four things constrain what the app can see:</p>
+<ul>
+  <li>It reads <code>keyCode</code> only — which physical key moved. It cannot
+      tell an <code>a</code> from a <code>q</code>, or a password from a
+      sentence.</li>
+  <li>While any password manager is frontmost, the event tap is
+      <em>uninstalled</em> rather than muted. The events are not delivered to
+      the app at all.</li>
+  <li>Every secure text field in macOS silences it, including fields in
+      applications nobody thought to enumerate.</li>
+  <li>Nothing is stored, buffered, or transmitted. The only output is one audio
+      buffer per keystroke.</li>
+</ul>
+
+<h2>Speaking words aloud</h2>
+<p>TYPE can read a word aloud once you have typed it correctly. This uses
+macOS's built-in speech synthesis, on your own device, and involves no network.
+It is off by default, and it only ever speaks words from the passage on screen.</p>
+
+<h2>Children</h2>
+<p>TYPE is suitable for children learning to read and type. It collects no data
+from anyone, of any age, and contains no advertising, no in-app purchases, and
+no user-generated content.</p>
+
+<h2>This website</h2>
+<p>type.review runs the same typing practice in a browser. Your statistics are
+kept in your browser's local storage and are never uploaded. The site has no
+accounts, no cookies for tracking, and no advertising.</p>
+<p>The site is served from Cloudflare Pages, which may record aggregate,
+anonymous page-view counts through Cloudflare Web Analytics. That measurement
+sets no cookies, does not follow you between sites, and is not linked to any
+individual. Cloudflare also processes request logs as part of serving the site,
+as any web host does.</p>
+
+<h2>Third parties</h2>
+<p>The app shares data with nobody, because it holds nothing to share and sends
+nothing anywhere. The website's only third party is the host described above.</p>
+
+<h2>Changes</h2>
+<p>If this policy changes, the revised version will appear at this address with
+a new date. Material changes will also be noted in the app's release notes.</p>
+
+<h2>Contact</h2>
+<p>Questions about privacy, or anything else:
+<a href="https://github.com/xiaolai/type-review-app-macos/issues">open an issue
+on GitHub</a>.</p>
+
+<footer>
+TYPE is open source under the MIT licence. What this page describes can be
+checked against the source at
+<a href="https://github.com/xiaolai/type-review-app-macos">github.com/xiaolai/type-review-app-macos</a>.
+</footer>
+
+</body>
+</html>
