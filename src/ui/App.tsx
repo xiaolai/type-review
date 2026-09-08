@@ -41,6 +41,7 @@ import { createSnapshotView } from "./hooks/use-snapshot";
 import { createUserCorpus } from "./hooks/use-user-corpus";
 import { Library } from "./Library";
 import { logFailure } from "./log";
+import { MacApp } from "./MacApp";
 import { exportProfileBlob, importProfileFromFile, resetProfileStore } from "./profile-actions";
 import type { RouteName } from "./router";
 import { createRouter } from "./router";
@@ -451,6 +452,9 @@ function InfoPages(props: {
       </Show>
       <Show when={props.routeName === "site-stats"}>
         <SiteStats onNavigate={props.onNavigate} />
+      </Show>
+      <Show when={props.routeName === "mac"}>
+        <MacApp onNavigate={props.onNavigate} />
       </Show>
     </>
   );

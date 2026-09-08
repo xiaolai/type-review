@@ -25,6 +25,10 @@ export function About(props: AboutProps): JSX.Element {
             <span class="hub__title">Site stats</span>
             <span class="hub__sub">Pageviews, visitors, top referrers — last 30 days.</span>
           </a>
+          <a class="hub__card" href="#/mac">
+            <span class="hub__title">Mac app</span>
+            <span class="hub__sub">Native, offline, with keyboard sound in every app.</span>
+          </a>
           <a class="hub__card" href="#/features">
             <span class="hub__title">Features</span>
             <span class="hub__sub">Everything TYPE does, in one scan.</span>

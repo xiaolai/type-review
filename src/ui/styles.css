@@ -1921,6 +1921,33 @@ kbd {
  * image (none today, but the renderer can emit them). `max-width:
  * 100%` keeps phones happy; `height: auto` preserves aspect ratio;
  * centring handles narrower-than-column figures cleanly. */
+/* Screenshots on the Mac app page.
+ *
+ * The captures keep their alpha, so the window shadow falls on whatever the
+ * page background is and the same file works in both themes — which is why
+ * there is no surface colour behind them and no border. A rounded corner here
+ * would fight the window's own.
+ */
+.shots {
+  display: grid;
+  gap: var(--space-6);
+  margin: var(--space-5) 0;
+}
+.shot {
+  margin: 0;
+}
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.shot figcaption {
+  margin-top: var(--space-2);
+  color: var(--color-muted);
+  font-size: var(--fs-12);
+  text-align: center;
+}
+
 .article-prose img {
   display: block;
   max-width: 100%;

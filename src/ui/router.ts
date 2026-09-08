@@ -19,7 +19,8 @@ export type RouteName =
   | "copyright"
   | "share"
   | "articles"
-  | "site-stats";
+  | "site-stats"
+  | "mac";
 
 const VALID_ROUTES: ReadonlySet<RouteName> = new Set([
   "practice",
@@ -35,6 +36,7 @@ const VALID_ROUTES: ReadonlySet<RouteName> = new Set([
   "share",
   "articles",
   "site-stats",
+  "mac",
 ]);
 
 /**
@@ -75,6 +77,10 @@ export const ROUTE_PARENT: Readonly<Record<RouteName, RouteName | null>> = {
   copyright: "about",
   articles: "about",
   "site-stats": "about",
+  // Off `practice`, not `about`. Someone arriving here has come for a
+  // download, and the back link should return them to the thing they were
+  // about to install rather than to an index they never visited.
+  mac: "practice",
   share: "practice",
 };
 

@@ -97,6 +97,29 @@ describe("App integration", () => {
     expect(toggle).toBeDefined();
   });
 
+  it("mounts the Mac app page at #/mac, with its screenshots and install command", async () => {
+    const host = await mountApp();
+    window.location.hash = "#/mac";
+    await vi.waitFor(() => {
+      expect(host.querySelector(".page__title")?.textContent).toContain("Mac");
+    });
+    // The install command is the reason the page exists.
+    expect(host.textContent).toContain("brew install --cask xiaolai/tap/type-review");
+    // Four screenshots, each with alt text — the page is half pictures, and
+    // a broken path here is invisible until somebody loads it.
+    const shots = Array.from(host.querySelectorAll<HTMLImageElement>(".shot img"));
+    expect(shots).toHaveLength(4);
+    for (const img of shots) {
+      expect(img.getAttribute("src")).toMatch(/^\/mac\/[a-z-]+\.png$/);
+      expect(img.getAttribute("alt")?.length ?? 0).toBeGreaterThan(20);
+    }
+    // Back goes to practice, not to an index the reader never visited.
+    const back = Array.from(host.querySelectorAll("button")).find(
+      (b) => b.textContent?.trim() === "back to practice",
+    );
+    expect(back).toBeDefined();
+  });
+
   it("marks a correctly typed character as correct", async () => {
     const host = await mountApp();
     const text = host.querySelector(".typing-area")?.textContent ?? "";
