@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Profile } from "../../engine/session";
+import { MAX_HISTOGRAM_ENTRIES } from "./constants";
 import { deserializeProfile, serializeProfile } from "./serialization";
 
 function sampleProfile(): Profile {
@@ -208,7 +209,7 @@ describe("deserializeProfile — adversarial input (storage is an untrusted boun
     ).toBe("corrupt");
   });
 
-  it("rejects oversized histograms", () => {
+  it("rejects histogram keys that are not exactly two characters, however many there are", () => {
     expect(
       tampered((j) => {
         if (j.results[0]) {
@@ -224,6 +225,28 @@ describe("deserializeProfile — adversarial input (storage is an untrusted boun
         }
       }).status,
     ).toBe("corrupt");
+  });
+
+  it("drops an oversized histogram instead of discarding the whole profile", () => {
+    // Quantity is not a corruption signal, and rejecting it would cost the user
+    // every run they have ever done. The run survives with its metrics; only the
+    // adaptive picture for that one run is lost, and later runs rebuild it.
+    const result = tampered((j) => {
+      if (j.results[0]) {
+        const huge: Record<string, { hitCount: number; missCount: number; timeToType: number }> =
+          {};
+        for (let i = 0; i <= MAX_HISTOGRAM_ENTRIES; i++) {
+          const key = String.fromCharCode(0x100 + Math.floor(i / 128), 0x100 + (i % 128));
+          huge[key] = { hitCount: 1, missCount: 0, timeToType: 100 };
+        }
+        j.results[0].histogram = huge as never;
+      }
+    });
+    expect(result.status).toBe("ok");
+    if (result.status !== "ok") return;
+    expect(result.profile.results).toHaveLength(1);
+    expect(result.profile.results[0]?.histogram.size).toBe(0);
+    expect(result.profile.results[0]?.metrics.netWpm).toBe(60);
   });
 
   it("truncates an oversized results array to the most recent entries", () => {

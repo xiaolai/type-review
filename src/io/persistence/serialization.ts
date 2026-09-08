@@ -112,13 +112,28 @@ function parseMetrics(raw: unknown): RunMetrics | null {
   };
 }
 
+/**
+ * Parses one run's bigram histogram, with two failure modes handled
+ * deliberately differently.
+ *
+ * A structurally invalid entry — wrong key shape, non-integer counts, more
+ * misses than hits — means the payload was tampered with or truncated, so it
+ * returns null and the whole load fails loud.
+ *
+ * *Too many* entries is a quantity problem, not a corruption signal, and
+ * rejecting it costs the user their entire history for one bloated run. Degrade
+ * to an empty histogram instead and keep the run's metrics — the same trade the
+ * v1→v2 migrator makes, and the adaptive picture rebuilds from later runs. The
+ * count is checked before any entry is validated, so an oversized payload still
+ * cannot make load do unbounded work.
+ */
 function parseHistogram(raw: unknown): Histogram | null {
   if (!isObject(raw)) {
     return null;
   }
   const entries = Object.entries(raw);
   if (entries.length > MAX_HISTOGRAM_ENTRIES) {
-    return null;
+    return new Map<string, BigramHit>();
   }
   const map = new Map<string, BigramHit>();
   for (const [key, hit] of entries) {
