@@ -10,8 +10,9 @@ export interface MacAppProps {
 function Shot(props: { src: string; alt: string; caption: string }): JSX.Element {
   return (
     <figure class="shot">
-      {/* `loading="lazy"` because four window captures is a lot of bytes for
-          a page most people reach to get a download link. */}
+      {/* `loading="lazy"` because four window captures are still the heaviest
+          thing on a page most people reach to get a download link. WebP at
+          q90 already took them from 2.5 MB to 350 KB; this defers the rest. */}
       <img src={props.src} alt={props.alt} loading="lazy" />
       <figcaption>{props.caption}</figcaption>
     </figure>
@@ -83,24 +84,24 @@ export function MacApp(props: MacAppProps): JSX.Element {
         <h3>What it looks like</h3>
         <div class="shots">
           <Shot
-            src="/mac/practice-keyboard.png"
+            src="/mac/practice-keyboard.webp"
             alt="The TYPE practice window with the on-screen keyboard drawn out below it, keys tinted by how well each one is going."
             caption="The practice window, with the keyboard drawer out. Each key is tinted by how well you type it."
           />
           <Shot
-            src="/mac/statistics.png"
+            src="/mac/practice.webp"
+            alt="The TYPE practice window on its own, mid-run, showing typed text, live words per minute and accuracy."
+            caption="Or just the text, if the keyboard is not what you need."
+          />
+          <Shot
+            src="/mac/statistics.webp"
             alt="The Statistics window showing runs, best speed, a streak, and a table of per-key speed and error rate."
             caption="Per-key statistics, and the same numbers regrouped by the finger responsible."
           />
           <Shot
-            src="/mac/sound.png"
+            src="/mac/sound.webp"
             alt="The Sound settings pane, showing the keyboard sound pack, volume, speak-words toggle, voice picker, and the list of applications the keyboard stays silent in."
             caption="Sound settings, including the applications the keyboard stays silent in."
-          />
-          <Shot
-            src="/mac/practice.png"
-            alt="The TYPE practice window on its own, mid-run, showing typed text, live words per minute and accuracy."
-            caption="Or just the text, if the keyboard is not what you need."
           />
         </div>
 

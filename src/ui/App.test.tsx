@@ -1,4 +1,6 @@
 // @vitest-environment jsdom
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { render } from "solid-js/web";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Profile } from "../engine/session";
@@ -106,11 +108,20 @@ describe("App integration", () => {
     // The install command is the reason the page exists.
     expect(host.textContent).toContain("brew install --cask xiaolai/tap/type-review");
     // Four screenshots, each with alt text — the page is half pictures, and
-    // a broken path here is invisible until somebody loads it.
+    // a broken path here is invisible until somebody loads it. jsdom does not
+    // fetch images, so the shape of the src proves nothing on its own; the file
+    // is checked on disk. That is the assertion that survives the next rename.
     const shots = Array.from(host.querySelectorAll<HTMLImageElement>(".shot img"));
     expect(shots).toHaveLength(4);
+    // Checked before the loop, and separately: if this base were ever wrong,
+    // every file below would look missing, and the mutation test that is
+    // supposed to prove this assertion works would pass for the wrong reason.
+    const publicDir = join(process.cwd(), "public");
+    expect(existsSync(join(publicDir, "mac"))).toBe(true);
     for (const img of shots) {
-      expect(img.getAttribute("src")).toMatch(/^\/mac\/[a-z-]+\.png$/);
+      const src = img.getAttribute("src") ?? "";
+      expect(src).toMatch(/^\/mac\/[a-z-]+\.webp$/);
+      expect(existsSync(join(publicDir, src))).toBe(true);
       expect(img.getAttribute("alt")?.length ?? 0).toBeGreaterThan(20);
     }
     // Back goes to practice, not to an index the reader never visited.
