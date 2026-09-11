@@ -107,6 +107,12 @@ describe("App integration", () => {
     });
     // The install command is the reason the page exists.
     expect(host.textContent).toContain("brew install --cask xiaolai/tap/type-review");
+    // And so is the store link, which is the shorter path for most readers. By
+    // href rather than by its text: the label is prose and will be reworded,
+    // while the id is the product and cannot change without being a different
+    // application.
+    const store = host.querySelector<HTMLAnchorElement>('a[href*="apps.apple.com"]');
+    expect(store?.href).toContain("id6809615378");
     // Four screenshots, each with alt text — the page is half pictures, and
     // a broken path here is invisible until somebody loads it. jsdom does not
     // fetch images, so the shape of the src proves nothing on its own; the file

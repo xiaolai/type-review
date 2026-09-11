@@ -44,7 +44,14 @@ export function MacApp(props: MacAppProps): JSX.Element {
         </p>
 
         <h3>Install</h3>
-        <p>With Homebrew, which also keeps it updated:</p>
+        <p>
+          From the{" "}
+          <a href="https://apps.apple.com/app/id6809615378" rel="noopener">
+            Mac App Store
+          </a>
+          , which is the shortest path and keeps it updated.
+        </p>
+        <p>Or with Homebrew, which also keeps it updated:</p>
         <pre class="code-block">
           <code>brew install --cask xiaolai/tap/type-review</code>
         </pre>
@@ -56,7 +63,11 @@ export function MacApp(props: MacAppProps): JSX.Element {
           and drag <code>TYPE.app</code> to Applications. Either way the build is signed and
           notarised by Apple, so it opens without the “unidentified developer” dialogue.
         </p>
-        <p class="note">Requires macOS 14 or later, on Apple silicon.</p>
+        <p class="note">
+          Requires macOS 14 or later, on Apple silicon. The App Store copy is sandboxed and carries
+          its own identifier, so it can sit beside a Homebrew install without the two fighting over
+          anything. They are released separately, and Homebrew usually gets a new version first.
+        </p>
 
         <h3>What the Mac app adds</h3>
         <ul>
