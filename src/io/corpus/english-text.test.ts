@@ -53,4 +53,16 @@ describe("English-keyboard text", () => {
       expect(isAscii(sanitize(entry.text).text), entry.id).toBe(true);
     }
   });
+
+  // Cleaning is a net for pasted text, not what makes this corpus English. A
+  // quote it has to cut, or cuts away entirely, should not be in the file, and
+  // one cut to nothing used to vanish at load along with any check of it.
+  it("no bundled quote loses a character to cleaning", () => {
+    const entries = (quotesJson as { entries: { id: string; text: string }[] }).entries;
+    for (const entry of entries) {
+      const cleaned = sanitize(entry.text);
+      expect(cleaned.droppedChars, `${entry.id} loses characters to cleaning`).toBe(0);
+      expect(cleaned.text.length, `${entry.id} cleans to nothing`).toBeGreaterThan(0);
+    }
+  });
 });

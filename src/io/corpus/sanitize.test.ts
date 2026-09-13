@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_PASSAGE_CHARS, sanitize } from "./sanitize";
+import { ASCII_FOLD_TABLE, foldMapFrom, MAX_PASSAGE_CHARS, sanitize } from "./sanitize";
 
 describe("sanitize", () => {
   it("passes clean text through unchanged", () => {
@@ -124,5 +124,20 @@ describe("sanitize", () => {
 
   it("preserves typeable punctuation, digits, and quotes", () => {
     expect(sanitize('Don\'t! 1+2=3. "yes"').text).toBe('Don\'t! 1+2=3. "yes"');
+  });
+});
+
+describe("foldMapFrom", () => {
+  it("refuses a table that repeats a code point", () => {
+    expect(() =>
+      foldMapFrom([
+        [0x2018, "'"],
+        [0x2018, "`"],
+      ]),
+    ).toThrow(/repeats a code point/);
+  });
+
+  it("keys every entry of the real table", () => {
+    expect(foldMapFrom(ASCII_FOLD_TABLE).size).toBe(ASCII_FOLD_TABLE.length);
   });
 });

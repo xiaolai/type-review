@@ -1,7 +1,7 @@
 import type { JSX } from "solid-js";
 import { createSignal, For, Show } from "solid-js";
 import type { UserPassage } from "../io";
-import { MAX_PASSAGE_CHARS, parseFile, sanitize } from "../io";
+import { cleaningNote, parseFile, sanitize } from "../io";
 import { logFailure } from "./log";
 
 export interface LibraryProps {
@@ -37,18 +37,6 @@ function formatTimestamp(ts: number): string {
  * Paste textarea is always available; the file picker accepts .txt and
  * .md (the markdown parser lazy-loads when the user picks an .md file).
  */
-/**
- * What cleaning did to a passage, or null if it changed nothing worth saying.
- * Mirrors the app's Library note: a truncation, and a count of characters with
- * no ASCII form that were removed rather than typed around.
- */
-function cleaningNote(result: { truncated: boolean; droppedChars: number }): string | null {
-  const parts: string[] = [];
-  if (result.truncated) parts.push(`truncated to ${MAX_PASSAGE_CHARS.toLocaleString()} chars`);
-  if (result.droppedChars > 0) parts.push(`${result.droppedChars} unusable characters removed`);
-  return parts.length === 0 ? null : parts.join(", ");
-}
-
 export function Library(props: LibraryProps): JSX.Element {
   const [title, setTitle] = createSignal("");
   const [text, setText] = createSignal("");

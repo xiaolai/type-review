@@ -56,9 +56,10 @@ export interface SanitizeOptions {
  * What decomposition cannot reach, by hand. NFKD leaves these whole because
  * Unicode gives them no compatibility decomposition.
  *
- * Mirrored line for line in the app's `asciiFoldTable` (Sanitize.swift), and
- * a vector case runs every entry through both implementations, so a line
- * added to one side and not the other fails the suite.
+ * Mirrored line for line in the app's `asciiFoldTable` (Sanitize.swift). The
+ * app's corpus vector carries this table and its CorpusVectorTests require the
+ * Swift table to equal it entry for entry, so regenerate that vector after
+ * changing a line here: until then the app compares itself with the old table.
  */
 export const ASCII_FOLD_TABLE: readonly (readonly [number, string])[] = [
   // Quotation marks and apostrophes, including guillemets and primes.
@@ -124,12 +125,23 @@ export const ASCII_FOLD_TABLE: readonly (readonly [number, string])[] = [
   [0x00b1, "+/-"], // PLUS-MINUS SIGN
 ];
 
-const ASCII_FOLD: ReadonlyMap<number, string> = new Map(ASCII_FOLD_TABLE);
-if (ASCII_FOLD.size !== ASCII_FOLD_TABLE.length) {
-  // A Map keeps only the last of a repeated key, silently. Refusing to load is
-  // the loud version of that, and matches the Swift side, which traps.
-  throw new Error("ASCII_FOLD_TABLE repeats a code point");
+/**
+ * The table, keyed for the loop. A Map keeps only the last of a repeated key,
+ * silently; refusing to build is the loud version of that, and matches the
+ * Swift side, which traps. A function so the refusal can be tested: written
+ * inline it only ever met a table with no repeats, and never once ran.
+ */
+export function foldMapFrom(
+  table: readonly (readonly [number, string])[],
+): ReadonlyMap<number, string> {
+  const map = new Map(table);
+  if (map.size !== table.length) {
+    throw new Error("the fold table repeats a code point");
+  }
+  return map;
 }
+
+const ASCII_FOLD = foldMapFrom(ASCII_FOLD_TABLE);
 
 export interface SanitizeResult {
   text: string;

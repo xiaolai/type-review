@@ -11,6 +11,7 @@ export {
   createDrillsSource,
   createUserSource,
 } from "./corpus/channels";
+export { cleaningNote } from "./corpus/cleaning-note";
 export type { RawCode } from "./corpus/code";
 export { createCodeSource } from "./corpus/code";
 export type { ChannelName, CompositeCorpusOptions } from "./corpus/composite";
