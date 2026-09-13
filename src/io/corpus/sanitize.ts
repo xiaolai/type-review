@@ -1,13 +1,20 @@
 /**
  * Normalises arbitrary text into something the typing engine can present.
  *
- * Rules (updated 2026-05-17):
+ * Rules (updated 2026-09-13):
+ *  - Bring the text into ASCII. This is English typing practice, and a
+ *    letter the keyboard cannot produce is a mistake the typist is made to
+ *    commit. NFKD first: accents split off their letters and are removed,
+ *    an ellipsis becomes three dots, a trademark sign becomes TM, a
+ *    non-breaking space becomes a space. Then `ASCII_FOLD_TABLE` for what
+ *    decomposition leaves whole: typographic quotes and dashes, letters such
+ *    as sharp s and oe, and a few common symbols. Anything still outside
+ *    ASCII (Chinese, Cyrillic, Greek, emoji, lone surrogate halves) is
+ *    dropped and counted. A removed accent is a conversion, not a drop, and
+ *    is not counted.
  *  - Drop ASCII control characters (codepoints 0..31 except whitespace,
  *    and 127). Whitespace (\t \n \v \f \r \space) is kept here and
  *    normalised by the pass below.
- *  - Drop UTF-16 surrogate halves (the engine rejects them; we strip
- *    rather than reject so a single bad codepoint doesn't fail an
- *    otherwise-valid paste).
  *  - Normalise CRLF / CR to LF so the rest of the logic only sees `\n`.
  *  - **Prose mode (default)** — for each run of whitespace:
  *      • If it spans a blank line (i.e. contains ≥ 2 newlines), collapse
@@ -45,12 +52,88 @@ export interface SanitizeOptions {
   preserveLayout?: boolean;
 }
 
-const HIGH_SURROGATE_FIRST = 0xd800;
-const LOW_SURROGATE_LAST = 0xdfff;
+/**
+ * What decomposition cannot reach, by hand. NFKD leaves these whole because
+ * Unicode gives them no compatibility decomposition.
+ *
+ * Mirrored line for line in the app's `asciiFoldTable` (Sanitize.swift), and
+ * a vector case runs every entry through both implementations, so a line
+ * added to one side and not the other fails the suite.
+ */
+export const ASCII_FOLD_TABLE: readonly (readonly [number, string])[] = [
+  // Quotation marks and apostrophes, including guillemets and primes.
+  [0x2018, "'"], // LEFT SINGLE QUOTATION MARK
+  [0x2019, "'"], // RIGHT SINGLE QUOTATION MARK
+  [0x201a, "'"], // SINGLE LOW-9 QUOTATION MARK
+  [0x201b, "'"], // SINGLE HIGH-REVERSED-9 QUOTATION MARK
+  [0x2032, "'"], // PRIME
+  [0x2035, "'"], // REVERSED PRIME
+  [0x2039, "'"], // SINGLE LEFT-POINTING ANGLE QUOTATION MARK
+  [0x203a, "'"], // SINGLE RIGHT-POINTING ANGLE QUOTATION MARK
+  [0x201c, '"'], // LEFT DOUBLE QUOTATION MARK
+  [0x201d, '"'], // RIGHT DOUBLE QUOTATION MARK
+  [0x201e, '"'], // DOUBLE LOW-9 QUOTATION MARK
+  [0x201f, '"'], // DOUBLE HIGH-REVERSED-9 QUOTATION MARK
+  [0x00ab, '"'], // LEFT-POINTING DOUBLE ANGLE QUOTATION MARK
+  [0x00bb, '"'], // RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK
+  // Dashes, minus and bullets. One hyphen each, so a passage keeps its length.
+  [0x2010, "-"], // HYPHEN
+  [0x2012, "-"], // FIGURE DASH
+  [0x2013, "-"], // EN DASH
+  [0x2014, "-"], // EM DASH
+  [0x2015, "-"], // HORIZONTAL BAR
+  [0x2212, "-"], // MINUS SIGN
+  [0x2043, "-"], // HYPHEN BULLET
+  [0x2022, "-"], // BULLET
+  [0x2023, "-"], // TRIANGULAR BULLET
+  [0x25e6, "-"], // WHITE BULLET
+  [0x00b7, "-"], // MIDDLE DOT
+  // Slashes, including the one NFKD puts inside a vulgar fraction.
+  [0x2044, "/"], // FRACTION SLASH
+  [0x2215, "/"], // DIVISION SLASH
+  // Line and paragraph separators, as a word processor pastes them.
+  [0x2028, "\n"], // LINE SEPARATOR
+  [0x2029, "\n\n"], // PARAGRAPH SEPARATOR
+  // Letters that are not an ASCII letter with an accent, so NFKD leaves them whole.
+  [0x00df, "ss"], // LATIN SMALL LETTER SHARP S
+  [0x00e6, "ae"], // LATIN SMALL LETTER AE
+  [0x00c6, "AE"], // LATIN CAPITAL LETTER AE
+  [0x0153, "oe"], // LATIN SMALL LIGATURE OE
+  [0x0152, "OE"], // LATIN CAPITAL LIGATURE OE
+  [0x00f8, "o"], // LATIN SMALL LETTER O WITH STROKE
+  [0x00d8, "O"], // LATIN CAPITAL LETTER O WITH STROKE
+  [0x0142, "l"], // LATIN SMALL LETTER L WITH STROKE
+  [0x0141, "L"], // LATIN CAPITAL LETTER L WITH STROKE
+  [0x0111, "d"], // LATIN SMALL LETTER D WITH STROKE
+  [0x0110, "D"], // LATIN CAPITAL LETTER D WITH STROKE
+  [0x00f0, "d"], // LATIN SMALL LETTER ETH
+  [0x00d0, "D"], // LATIN CAPITAL LETTER ETH
+  [0x00fe, "th"], // LATIN SMALL LETTER THORN
+  [0x00de, "Th"], // LATIN CAPITAL LETTER THORN
+  [0x0131, "i"], // LATIN SMALL LETTER DOTLESS I
+  // Symbols common enough in prose to be worth spelling out.
+  [0x00a9, "(c)"], // COPYRIGHT SIGN
+  [0x00ae, "(R)"], // REGISTERED SIGN
+  [0x20ac, "EUR"], // EURO SIGN
+  [0x00a3, "GBP"], // POUND SIGN
+  [0x00a5, "JPY"], // YEN SIGN
+  [0x00a2, "c"], // CENT SIGN
+  [0x00b0, "deg"], // DEGREE SIGN
+  [0x00d7, "x"], // MULTIPLICATION SIGN
+  [0x00f7, "/"], // DIVISION SIGN
+  [0x00b1, "+/-"], // PLUS-MINUS SIGN
+];
+
+const ASCII_FOLD: ReadonlyMap<number, string> = new Map(ASCII_FOLD_TABLE);
+if (ASCII_FOLD.size !== ASCII_FOLD_TABLE.length) {
+  // A Map keeps only the last of a repeated key, silently. Refusing to load is
+  // the loud version of that, and matches the Swift side, which traps.
+  throw new Error("ASCII_FOLD_TABLE repeats a code point");
+}
 
 export interface SanitizeResult {
   text: string;
-  /** Number of code units dropped (control chars + surrogate halves). */
+  /** Code units dropped for having no ASCII form, or for being control characters. A removed accent is not counted. */
   droppedChars: number;
   /** True iff the result was truncated at `MAX_PASSAGE_CHARS`. */
   truncated: boolean;
@@ -58,14 +141,13 @@ export interface SanitizeResult {
 
 export function sanitize(input: string, options: SanitizeOptions = {}): SanitizeResult {
   let dropped = 0;
+  // Compatibility decomposition before anything is judged, so the loop sees a
+  // letter and its accent separately, three dots rather than an ellipsis, and
+  // a plain space rather than a non-breaking one.
+  const decomposed = input.normalize("NFKD");
   const kept: string[] = [];
-  for (let i = 0; i < input.length; i++) {
-    const code = input.charCodeAt(i);
-    // Surrogate halves — drop.
-    if (code >= HIGH_SURROGATE_FIRST && code <= LOW_SURROGATE_LAST) {
-      dropped++;
-      continue;
-    }
+  for (let i = 0; i < decomposed.length; i++) {
+    const code = decomposed.charCodeAt(i);
     // Whitespace family — keep; the normalisation pass below handles them.
     if (
       code === 0x09 || // tab
@@ -75,7 +157,7 @@ export function sanitize(input: string, options: SanitizeOptions = {}): Sanitize
       code === 0x0d || // CR
       code === 0x20 // space
     ) {
-      kept.push(input[i] ?? "");
+      kept.push(decomposed[i] ?? "");
       continue;
     }
     // Other control characters → drop.
@@ -83,7 +165,21 @@ export function sanitize(input: string, options: SanitizeOptions = {}): Sanitize
       dropped++;
       continue;
     }
-    kept.push(input[i] ?? "");
+    if (code < 0x7f) {
+      kept.push(decomposed[i] ?? "");
+      continue;
+    }
+    // The accent decomposition split off its letter. Removing it is the
+    // conversion to a plain letter, not the loss of a character, so it is not
+    // counted.
+    if (code >= 0x0300 && code <= 0x036f) continue;
+    const replacement = ASCII_FOLD.get(code);
+    if (replacement !== undefined) {
+      kept.push(replacement);
+      continue;
+    }
+    // No ASCII form: Chinese, Cyrillic, Greek, emoji, lone surrogate halves.
+    dropped++;
   }
   let text = kept.join("");
 

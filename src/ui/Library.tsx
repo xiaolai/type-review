@@ -37,6 +37,18 @@ function formatTimestamp(ts: number): string {
  * Paste textarea is always available; the file picker accepts .txt and
  * .md (the markdown parser lazy-loads when the user picks an .md file).
  */
+/**
+ * What cleaning did to a passage, or null if it changed nothing worth saying.
+ * Mirrors the app's Library note: a truncation, and a count of characters with
+ * no ASCII form that were removed rather than typed around.
+ */
+function cleaningNote(result: { truncated: boolean; droppedChars: number }): string | null {
+  const parts: string[] = [];
+  if (result.truncated) parts.push(`truncated to ${MAX_PASSAGE_CHARS.toLocaleString()} chars`);
+  if (result.droppedChars > 0) parts.push(`${result.droppedChars} unusable characters removed`);
+  return parts.length === 0 ? null : parts.join(", ");
+}
+
 export function Library(props: LibraryProps): JSX.Element {
   const [title, setTitle] = createSignal("");
   const [text, setText] = createSignal("");
@@ -61,11 +73,8 @@ export function Library(props: LibraryProps): JSX.Element {
       setTitle("");
       setText("");
       setFileName(null);
-      setInfo(
-        cleaned.truncated
-          ? `added — truncated to ${MAX_PASSAGE_CHARS.toLocaleString()} chars`
-          : "added",
-      );
+      const note = cleaningNote(cleaned);
+      setInfo(note ? `added — ${note}` : "added");
     } catch (err: unknown) {
       logFailure("user-corpus", err);
       setError(err instanceof Error ? err.message : "couldn't save passage");
@@ -96,11 +105,8 @@ export function Library(props: LibraryProps): JSX.Element {
         // Use file name without extension as default title.
         setTitle(file.name.replace(/\.[^.]+$/, ""));
       }
-      setInfo(
-        cleaned.truncated
-          ? `loaded — truncated to ${MAX_PASSAGE_CHARS.toLocaleString()} chars. review and save.`
-          : "loaded — review and save.",
-      );
+      const note = cleaningNote(cleaned);
+      setInfo(note ? `loaded — ${note}. review and save.` : "loaded — review and save.");
     } catch (err: unknown) {
       logFailure("user-corpus", err);
       setError(err instanceof Error ? err.message : "couldn't read that file.");

@@ -24,7 +24,7 @@
 
 import { sanitize } from "./sanitize";
 
-export function parseMarkdown(input: string): string {
+export function stripMarkdown(input: string): string {
   let s = input;
 
   // 1. Fenced code blocks — drop entirely.
@@ -61,5 +61,13 @@ export function parseMarkdown(input: string): string {
   // 10. Any leftover HTML — drop tags.
   s = s.replace(/<[^>]+>/g, "");
 
-  return sanitize(s).text;
+  return s;
+}
+
+/**
+ * `stripMarkdown`, then cleaned for typing. The function the Markdown vectors
+ * record for the app's `parseMarkdown` to match.
+ */
+export function parseMarkdown(input: string): string {
+  return sanitize(stripMarkdown(input)).text;
 }

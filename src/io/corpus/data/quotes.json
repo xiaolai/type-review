@@ -179,29 +179,6 @@
     { "id": "q-camus-rebel", "text": "The only way to deal with an unfree world is to become so absolutely free that your very existence is an act of rebellion.", "author": "Albert Camus", "license": "fair-use snippet" },
 
     { "id": "q-keynes-changed", "text": "When the facts change, I change my mind. What do you do, sir?", "author": "John Maynard Keynes", "license": "fair-use snippet" },
-    { "id": "q-hawking-curiosity", "text": "Remember to look up at the stars and not down at your feet. Try to make sense of what you see and wonder about what makes the universe exist. Be curious.", "author": "Stephen Hawking", "license": "fair-use snippet" },
-
-    { "id": "q-cervantes-vida", "text": "La libertad, Sancho, es uno de los más preciosos dones que a los hombres dieron los cielos.", "author": "Miguel de Cervantes", "title": "Don Quijote", "license": "public domain" },
-    { "id": "q-cervantes-loco", "text": "Cuando una puerta se cierra, otra se abre.", "author": "Miguel de Cervantes", "title": "Don Quijote", "license": "public domain" },
-    { "id": "q-cervantes-amigo", "text": "Más vale un buen amigo que un mal pariente.", "author": "Miguel de Cervantes", "license": "public domain" },
-    { "id": "q-marti-amistad", "text": "La amistad sincera es un alma repartida en dos cuerpos.", "author": "José Martí", "license": "public domain" },
-    { "id": "q-marti-cultura", "text": "Ser culto es el único modo de ser libre.", "author": "José Martí", "license": "public domain" },
-    { "id": "q-bolivar-libertad", "text": "Un pueblo ignorante es instrumento ciego de su propia destrucción.", "author": "Simón Bolívar", "license": "public domain" },
-    { "id": "q-machado-camino", "text": "Caminante, no hay camino, se hace camino al andar.", "author": "Antonio Machado", "title": "Proverbios y cantares", "license": "public domain" },
-    { "id": "q-borges-paraiso", "text": "Siempre imaginé que el paraíso sería algún tipo de biblioteca.", "author": "Jorge Luis Borges", "license": "fair-use snippet" },
-    { "id": "q-neruda-amor", "text": "Es tan corto el amor, y es tan largo el olvido.", "author": "Pablo Neruda", "license": "fair-use snippet" },
-    { "id": "q-lorca-poesia", "text": "La poesía no quiere adeptos, quiere amantes.", "author": "Federico García Lorca", "license": "fair-use snippet" },
-
-    { "id": "q-hugo-misere", "text": "Celui qui ouvre une porte d'école, ferme une prison.", "author": "Victor Hugo", "license": "public domain" },
-    { "id": "q-hugo-rien", "text": "Rien n'est plus puissant qu'une idée dont l'heure est venue.", "author": "Victor Hugo", "license": "public domain" },
-    { "id": "q-hugo-aimer", "text": "Aimer, c'est ne plus voir le monde, c'est ne plus se voir.", "author": "Victor Hugo", "title": "Les Misérables", "license": "public domain" },
-    { "id": "q-voltaire-jardin", "text": "Il faut cultiver notre jardin.", "author": "Voltaire", "title": "Candide", "license": "public domain" },
-    { "id": "q-voltaire-douter", "text": "Le doute n'est pas une condition agréable, mais la certitude est absurde.", "author": "Voltaire", "license": "public domain" },
-    { "id": "q-pascal-roseau", "text": "L'homme n'est qu'un roseau, le plus faible de la nature, mais c'est un roseau pensant.", "author": "Blaise Pascal", "title": "Pensées", "license": "public domain" },
-    { "id": "q-pascal-coeur", "text": "Le cœur a ses raisons que la raison ne connaît point.", "author": "Blaise Pascal", "title": "Pensées", "license": "public domain" },
-    { "id": "q-rousseau-libre", "text": "L'homme est né libre, et partout il est dans les fers.", "author": "Jean-Jacques Rousseau", "title": "Du contrat social", "license": "public domain" },
-    { "id": "q-camus-revolte", "text": "Je me révolte, donc nous sommes.", "author": "Albert Camus", "title": "L'Homme révolté", "license": "fair-use snippet" },
-    { "id": "q-saintex-essentiel", "text": "On ne voit bien qu'avec le cœur. L'essentiel est invisible pour les yeux.", "author": "Antoine de Saint-Exupéry", "title": "Le Petit Prince", "license": "fair-use snippet" },
-    { "id": "q-saintex-apprivoiser", "text": "Tu deviens responsable pour toujours de ce que tu as apprivoisé.", "author": "Antoine de Saint-Exupéry", "title": "Le Petit Prince", "license": "fair-use snippet" }
+    { "id": "q-hawking-curiosity", "text": "Remember to look up at the stars and not down at your feet. Try to make sense of what you see and wonder about what makes the universe exist. Be curious.", "author": "Stephen Hawking", "license": "fair-use snippet" }
   ]
 }

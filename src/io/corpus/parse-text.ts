@@ -20,7 +20,9 @@ export async function parseFile(file: File): Promise<string> {
   if (kind === "txt") {
     return file.text();
   }
-  // md
-  const { parseMarkdown } = await import("./parse-markdown");
-  return parseMarkdown(await file.text());
+  // md: stripped but not cleaned. The caller cleans once, which is the only
+  // way its count of removed characters is the real one. Cleaning here as well
+  // threw that count away and left the caller's pass nothing to report.
+  const { stripMarkdown } = await import("./parse-markdown");
+  return stripMarkdown(await file.text());
 }
