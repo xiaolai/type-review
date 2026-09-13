@@ -76,6 +76,48 @@ describe("sanitize", () => {
     expect(sanitize(short).truncated).toBe(false);
   });
 
+  it("counts a removed character once, however many code units it takes", () => {
+    // An emoji is two UTF-16 code units, and a Hangul syllable decomposes into
+    // three jamo. Each is one character to the person who pasted it.
+    const result = sanitize("a\u{1F600}b\uD55Cc");
+    expect(result.text).toBe("abc");
+    expect(result.droppedChars).toBe(2);
+  });
+
+  it("leaves no whitespace at the end of a truncated passage", () => {
+    // The last boundary before the cap is the second newline of a paragraph
+    // break, and the cut used to keep the first.
+    const words = "word ".repeat(900).trim();
+    const prose = sanitize(`${words}\n\n${"x".repeat(1000)}`);
+    expect(prose.truncated).toBe(true);
+    expect(prose.text).toBe(words);
+    // With layout kept, the last boundary can sit inside indentation.
+    const code = sanitize(`${"x".repeat(4100)}\n    ${"y".repeat(1000)}`, { preserveLayout: true });
+    expect(code.truncated).toBe(true);
+    expect(code.text).toBe("x".repeat(4100));
+  });
+
+  it("changes nothing when it cleans text it has already cleaned", () => {
+    const inputs = [
+      `${"word ".repeat(900).trim()}\n\n${"x".repeat(1000)}`,
+      `${"x".repeat(4100)}\n    ${"y".repeat(1000)}`,
+      "word ".repeat(2000),
+      "  caf\u00e9 \u201cquoted\u201d \u2014 a\u00a0b\t\n\n\nc  ",
+      "a\u{1F600}b\uD55Cc\u0007",
+      "  x".repeat(2500),
+    ];
+    for (const preserveLayout of [false, true]) {
+      for (const input of inputs) {
+        const once = sanitize(input, { preserveLayout });
+        const twice = sanitize(once.text, { preserveLayout });
+        const label = `preserveLayout=${preserveLayout}, input starting ${JSON.stringify(input.slice(0, 12))}`;
+        expect(twice.text, label).toBe(once.text);
+        expect(twice.droppedChars, label).toBe(0);
+        expect(twice.truncated, label).toBe(false);
+      }
+    }
+  });
+
   it("handles all-whitespace input by returning empty string", () => {
     expect(sanitize("   \t\n\r   ").text).toBe("");
   });

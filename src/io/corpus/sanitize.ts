@@ -10,7 +10,7 @@
  *    decomposition leaves whole: typographic quotes and dashes, letters such
  *    as sharp s and oe, and a few common symbols. Anything still outside
  *    ASCII (Chinese, Cyrillic, Greek, emoji, lone surrogate halves) is
- *    dropped and counted. A removed accent is a conversion, not a drop, and
+ *    dropped and counted, once per character of the input. A removed accent is a conversion, not a drop, and
  *    is not counted.
  *  - Drop ASCII control characters (codepoints 0..31 except whitespace,
  *    and 127). Whitespace (\t \n \v \f \r \space) is kept here and
@@ -133,7 +133,12 @@ if (ASCII_FOLD.size !== ASCII_FOLD_TABLE.length) {
 
 export interface SanitizeResult {
   text: string;
-  /** Code units dropped for having no ASCII form, or for being control characters. A removed accent is not counted. */
+  /**
+   * Characters dropped for having no ASCII form, or for being control
+   * characters, counted in the input's own code points: an emoji is one, and
+   * so is a Hangul syllable, not the two and three code units they occupy
+   * once decomposed. A removed accent is not counted.
+   */
   droppedChars: number;
   /** True iff the result was truncated at `MAX_PASSAGE_CHARS`. */
   truncated: boolean;
@@ -141,45 +146,58 @@ export interface SanitizeResult {
 
 export function sanitize(input: string, options: SanitizeOptions = {}): SanitizeResult {
   let dropped = 0;
-  // Compatibility decomposition before anything is judged, so the loop sees a
-  // letter and its accent separately, three dots rather than an ellipsis, and
-  // a plain space rather than a non-breaking one.
-  const decomposed = input.normalize("NFKD");
   const kept: string[] = [];
-  for (let i = 0; i < decomposed.length; i++) {
-    const code = decomposed.charCodeAt(i);
-    // Whitespace family — keep; the normalisation pass below handles them.
-    if (
-      code === 0x09 || // tab
-      code === 0x0a || // LF
-      code === 0x0b || // VT
-      code === 0x0c || // FF
-      code === 0x0d || // CR
-      code === 0x20 // space
-    ) {
-      kept.push(decomposed[i] ?? "");
-      continue;
+  // One character of the input at a time, each given its compatibility
+  // decomposition before anything is judged, so the loop sees a letter and its
+  // accent separately, three dots rather than an ellipsis, and a plain space
+  // rather than a non-breaking one.
+  //
+  // Per character rather than the whole string at once, so that what is
+  // counted is what was pasted. Counting decomposed code units reported one
+  // emoji as two characters removed and one Hangul syllable as three. The text
+  // kept is the same either way: decomposing a whole string differs from
+  // decomposing its characters only in how adjacent combining marks are
+  // ordered, and every combining mark is removed. `for...of` walks code
+  // points, and hands over a lone surrogate half on its own.
+  for (const character of input) {
+    let lost = false;
+    const decomposed = character.normalize("NFKD");
+    for (let i = 0; i < decomposed.length; i++) {
+      const code = decomposed.charCodeAt(i);
+      // Whitespace family — keep; the normalisation pass below handles them.
+      if (
+        code === 0x09 || // tab
+        code === 0x0a || // LF
+        code === 0x0b || // VT
+        code === 0x0c || // FF
+        code === 0x0d || // CR
+        code === 0x20 // space
+      ) {
+        kept.push(decomposed[i] ?? "");
+        continue;
+      }
+      // Other control characters → drop.
+      if (code < 0x20 || code === 0x7f) {
+        lost = true;
+        continue;
+      }
+      if (code < 0x7f) {
+        kept.push(decomposed[i] ?? "");
+        continue;
+      }
+      // The accent decomposition split off its letter. Removing it is the
+      // conversion to a plain letter, not the loss of a character, so it is not
+      // counted.
+      if (code >= 0x0300 && code <= 0x036f) continue;
+      const replacement = ASCII_FOLD.get(code);
+      if (replacement !== undefined) {
+        kept.push(replacement);
+        continue;
+      }
+      // No ASCII form: Chinese, Cyrillic, Greek, emoji, lone surrogate halves.
+      lost = true;
     }
-    // Other control characters → drop.
-    if (code < 0x20 || code === 0x7f) {
-      dropped++;
-      continue;
-    }
-    if (code < 0x7f) {
-      kept.push(decomposed[i] ?? "");
-      continue;
-    }
-    // The accent decomposition split off its letter. Removing it is the
-    // conversion to a plain letter, not the loss of a character, so it is not
-    // counted.
-    if (code >= 0x0300 && code <= 0x036f) continue;
-    const replacement = ASCII_FOLD.get(code);
-    if (replacement !== undefined) {
-      kept.push(replacement);
-      continue;
-    }
-    // No ASCII form: Chinese, Cyrillic, Greek, emoji, lone surrogate halves.
-    dropped++;
+    if (lost) dropped++;
   }
   let text = kept.join("");
 
@@ -209,6 +227,11 @@ export function sanitize(input: string, options: SanitizeOptions = {}): Sanitize
     if (lastBreak > MAX_PASSAGE_CHARS * 0.8) {
       text = text.slice(0, lastBreak);
     }
+    // The cut can leave whitespace behind it: at the second newline of a
+    // paragraph break it keeps the first, and in a layout-preserving passage
+    // it can stop inside a line's indentation. Trimmed, because the text is
+    // trimmed on the way in; otherwise cleaning the result again took more off.
+    text = text.trimEnd();
   }
   return { text, droppedChars: dropped, truncated };
 }
